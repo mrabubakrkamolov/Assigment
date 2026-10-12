@@ -1,0 +1,311 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Color Palette</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: system-ui, sans-serif;
+      background: #142657;
+      color: white;
+    }
+
+    header {
+      background: #23448c;
+      border-left: 12px solid #ffe600;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      margin: 0;
+    }
+
+    header span,
+    h2 {
+      color: #ffe600;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    input,
+    button {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    button {
+      background: #ffe600;
+      color: #142657;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #ffc400;
+    }
+
+    #palette {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .color-box {
+      height: 180px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-size: 22px;
+      font-weight: bold;
+      overflow-wrap: anywhere;
+      text-shadow: 1px 1px 3px black;
+      transition: height 0.3s ease, transform 0.3s ease;
+    }
+
+    .color-box.expanded {
+      height: 240px;
+      transform: scale(1.02);
+    }
+
+    #message {
+      min-height: 24px;
+      color: #4ade80;
+    }
+
+    @media (max-width: 650px) {
+      #palette {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 420px) {
+      #palette {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Practice Assignment</h1>
+    <span>WEEK 4 - FRIDAY</span>
+  </header>
+
+  <h2>Homework: Interactive Color Palette</h2>
+
+  <p>
+    Click a color to expand it and show its HEX code.
+    Double-click a color to remove it.
+  </p>
+
+  <div class="controls">
+    <input
+      type="text"
+      id="colorInput"
+      placeholder="#FF5733"
+      aria-label="Enter HEX color"
+    >
+
+    <button id="addColor">Add Color</button>
+    <button id="exportBtn">Export PNG</button>
+  </div>
+
+  <p id="message" aria-live="polite"></p>
+
+  <div id="palette"></div>
+
+  <script>
+    const palette = document.querySelector('#palette');
+    const colorInput = document.querySelector('#colorInput');
+    const addColorBtn = document.querySelector('#addColor');
+    const exportBtn = document.querySelector('#exportBtn');
+    const message = document.querySelector('#message');
+
+    const defaultColors = [
+      '#FF5733',
+      '#3498DB',
+      '#2ECC71',
+      '#9B59B6',
+      '#F1C40F',
+      '#E84393'
+    ];
+
+    // EXTRA CREDIT 1: Load saved colors from localStorage
+    function loadColors() {
+      try {
+        const savedColors = localStorage.getItem('colorPalette');
+
+        if (savedColors !== null) {
+          const parsedColors = JSON.parse(savedColors);
+
+          if (
+            Array.isArray(parsedColors) &&
+            parsedColors.every(color =>
+              typeof color === 'string' &&
+              /^#[0-9A-Fa-f]{6}$/.test(color)
+            )
+          ) {
+            return parsedColors;
+          }
+        }
+      } catch (error) {
+        console.error('Could not load colors:', error);
+      }
+
+      return [...defaultColors];
+    }
+
+    let colors = loadColors();
+
+    // EXTRA CREDIT 2: Save colors whenever the palette changes
+    function saveColors() {
+      try {
+        localStorage.setItem('colorPalette', JSON.stringify(colors));
+      } catch (error) {
+        message.textContent = 'Unable to save colors in this browser.';
+      }
+    }
+
+    function renderColors() {
+      palette.innerHTML = '';
+
+      colors.forEach((color, index) => {
+        const box = document.createElement('div');
+
+        box.className = 'color-box';
+        box.style.backgroundColor = color;
+        box.textContent = '';
+        box.title = 'Click to expand; double-click to remove';
+
+        box.addEventListener('click', () => {
+          box.classList.toggle('expanded');
+
+          box.textContent = box.classList.contains('expanded')
+            ? color
+            : '';
+        });
+
+        // Challenge: Double-click to remove a color
+        box.addEventListener('dblclick', () => {
+          colors.splice(index, 1);
+          saveColors();
+          renderColors();
+
+          message.textContent = `${color} removed.`;
+        });
+
+        palette.appendChild(box);
+      });
+    }
+
+    // Challenge: Add a new HEX color
+    function addColor() {
+      const color = colorInput.value.trim();
+
+      if (!/^#[0-9A-Fa-f]{6}$/.test(color)) {
+        message.textContent =
+          'Enter a valid HEX color, e.g. #FF5733.';
+        return;
+      }
+
+      colors.push(color.toUpperCase());
+
+      saveColors();
+      renderColors();
+
+      colorInput.value = '';
+      message.textContent = `${color.toUpperCase()} added.`;
+    }
+
+    addColorBtn.addEventListener('click', addColor);
+
+    colorInput.addEventListener('keydown', event => {
+      if (event.key === 'Enter') {
+        addColor();
+      }
+    });
+
+    // EXTRA CREDIT 3: Export the palette as a PNG image
+    exportBtn.addEventListener('click', () => {
+      if (colors.length === 0) {
+        message.textContent = 'Add at least one color before exporting.';
+        return;
+      }
+
+      const columns = 3;
+      const boxWidth = 240;
+      const boxHeight = 150;
+      const gap = 16;
+      const padding = 20;
+      const rows = Math.ceil(colors.length / columns);
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      canvas.width =
+        padding * 2 + columns * boxWidth + (columns - 1) * gap;
+
+      canvas.height =
+        padding * 2 + rows * boxHeight + (rows - 1) * gap;
+
+      ctx.fillStyle = '#142657';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      colors.forEach((color, index) => {
+        const column = index % columns;
+        const row = Math.floor(index / columns);
+
+        const x = padding + column * (boxWidth + gap);
+        const y = padding + row * (boxHeight + gap);
+
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, boxWidth, boxHeight);
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 22px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        ctx.fillText(
+          color,
+          x + boxWidth / 2,
+          y + boxHeight / 2
+        );
+      });
+
+      const link = document.createElement('a');
+      link.download = 'color-palette.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+
+      message.textContent = 'Palette exported successfully!';
+    });
+
+    // Restore the saved palette when the page opens or reloads
+    renderColors();
+  </script>
+</body>
+</html>
