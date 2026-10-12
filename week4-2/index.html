@@ -15,12 +15,12 @@
       margin: 0;
       padding: 24px;
       font-family: system-ui, sans-serif;
-      background: #142657;
+      background: #222357;
       color: white;
     }
 
     header {
-      background: #23448c;
+      background: #12448c;
       border-left: 12px solid #ffe600;
       padding: 20px;
       display: flex;
@@ -110,11 +110,11 @@
 
 <body>
   <header>
-    <h1>Practice Assignment</h1>
-    <span>WEEK 4 - FRIDAY</span>
+    <h1>Abubakr Assignment</h1>
+    <span>WEEK 4-2</span>
   </header>
 
-  <h2>Homework: Interactive Color Palette</h2>
+  <h2>Interactive Color Palette</h2>
 
   <p>
     Click a color to expand it and show its HEX code.
@@ -129,7 +129,7 @@
       aria-label="Enter HEX color"
     >
 
-    <button id="addColor">Add Color</button>
+    <button id="addColor">Add</button>
     <button id="exportBtn">Export PNG</button>
   </div>
 
@@ -172,7 +172,7 @@
           }
         }
       } catch (error) {
-        console.error('Could not load colors:', error);
+        console.error('Couldnt load colors:', error);
       }
 
       return [...defaultColors];
@@ -227,7 +227,7 @@
 
       if (!/^#[0-9A-Fa-f]{6}$/.test(color)) {
         message.textContent =
-          'Enter a valid HEX color, e.g. #FF5733.';
+          'Enter HEX color, e.g. #FFFFFF.';
         return;
       }
 
@@ -251,7 +251,7 @@
     // EXTRA CREDIT 3: Export the palette as a PNG image
     exportBtn.addEventListener('click', () => {
       if (colors.length === 0) {
-        message.textContent = 'Add at least one color before exporting.';
+        message.textContent = 'Add one color before exporting.';
         return;
       }
 
