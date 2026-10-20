@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hero Explorer</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 30px 20px;
+      font-family: Arial, sans-serif;
+      color: white;
+      background: #101827;
+    }
+
+    h1 {
+      text-align: center;
+      color: #facc15;
+    }
+
+    .search {
+      display: flex;
+      gap: 10px;
+      max-width: 600px;
+      margin: 25px auto;
+    }
+
+    input, button {
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid #475569;
+    }
+
+    button {
+      border: 0;
+      background: #e11d48;
+      color: white;
+      cursor: pointer;
+    }
+
+    #heroes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .card {
+      padding: 16px;
+      background: #1e293b;
+      border-radius: 12px;
+      border: 1px solid #334155;
+    }
+
+    .card img {
+      width: 100%;
+      height: 280px;
+      object-fit: contain;
+      background: #0f172a;
+      border-radius: 8px;
+    }
+
+    .card h2 { color: #facc15; font-size: 20px; }
+    .card p { line-height: 1.5; }
+    #status { text-align: center; margin: 20px; }
+  </style>
+</head>
+
+<body>
+  <h1>🦸 Hero Explorer</h1>
+
+  <div class="search">
+    <input id="heroInput" type="text" placeholder="Search Spider-Man...">
+    <button id="searchBtn">Search</button>
+  </div>
+
+  <p id="status">Loading heroes...</p>
+  <div id="heroes"></div>
+
+  <script>
+    const heroesContainer = document.getElementById("heroes");
+    const heroInput = document.getElementById("heroInput");
+    const status = document.getElementById("status");
+
+    let allHeroes = [];
+
+    async function getHeroes() {
+      try {
+        const response = await fetch(
+          "https://akabab.github.io/superhero-api/api/all.json"
+        );
+
+        if (!response.ok) throw new Error("Could not load heroes.");
+
+        allHeroes = await response.json();
+        showHeroes(allHeroes.slice(0, 30));
+      } catch (error) {
+        status.textContent = "Could not load heroes. Check your connection.";
+      }
+    }
+
+    function showHeroes(heroes) {
+      heroesContainer.innerHTML = "";
+      status.textContent = heroes.length
+        ? `${heroes.length} heroes shown`
+        : "No heroes found.";
+
+      heroes.forEach(hero => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const image = document.createElement("img");
+        image.src = hero.images?.md || hero.images?.sm || "";
+        image.alt = hero.name;
+
+        const title = document.createElement("h2");
+        title.textContent = hero.name;
+
+        const fullName = document.createElement("p");
+        fullName.textContent =
+          "Full name: " + (hero.biography?.fullName || "Unknown");
+
+        const publisher = document.createElement("p");
+        publisher.textContent =
+          "Publisher: " + (hero.biography?.publisher || "Unknown");
+
+        const power = document.createElement("p");
+        power.textContent =
+          "Power: " + (hero.powerstats?.power ?? "N/A");
+
+        const intelligence = document.createElement("p");
+        intelligence.textContent =
+          "Intelligence: " + (hero.powerstats?.intelligence ?? "N/A");
+
+        card.append(image, title, fullName, publisher, power, intelligence);
+        heroesContainer.appendChild(card);
+      });
+    }
+
+    function searchHeroes() {
+      const query = heroInput.value.trim().toLowerCase();
+
+      const filtered = allHeroes.filter(hero =>
+        hero.name.toLowerCase().includes(query)
+      );
+
+      showHeroes(filtered.slice(0, 60));
+    }
+
+    document.getElementById("searchBtn")
+      .addEventListener("click", searchHeroes);
+
+    heroInput.addEventListener("input", searchHeroes);
+
+    getHeroes();
+  </script>
+</body>
+</html>

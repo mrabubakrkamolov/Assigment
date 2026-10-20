@@ -1,0 +1,216 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Country Weather</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 30px 20px;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      color: white;
+      background: linear-gradient(135deg, #0f172a, #0369a1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .search {
+      display: flex;
+      gap: 10px;
+      max-width: 500px;
+      margin: 30px auto;
+    }
+
+    input, button {
+      padding: 13px;
+      font-size: 16px;
+      border-radius: 8px;
+    }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      outline: none;
+    }
+
+    button {
+      border: 0;
+      background: #facc15;
+      color: #172033;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover { background: #fde68a; }
+
+    #weather {
+      display: none;
+      max-width: 420px;
+      margin: 25px auto;
+      padding: 30px;
+      text-align: center;
+      background: #ffffff20;
+      border: 1px solid #ffffff40;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px #00000020;
+    }
+
+    #temperature {
+      font-size: 56px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+
+    .detail {
+      margin: 12px 0;
+      font-size: 17px;
+    }
+
+    #status {
+      text-align: center;
+      margin: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>🌦️ Country Weather</h1>
+
+  <div class="search">
+    <input id="cityInput" type="text"
+           placeholder="Enter city, e.g. Seoul">
+    <button id="searchBtn">Search</button>
+  </div>
+
+  <p id="status">Enter a city to see its weather.</p>
+
+  <div id="weather">
+    <h2 id="cityName"></h2>
+    <p id="countryName"></p>
+    <div id="temperature"></div>
+    <p id="condition"></p>
+
+    <p class="detail" id="feelsLike"></p>
+    <p class="detail" id="humidity"></p>
+    <p class="detail" id="wind"></p>
+    <p class="detail" id="updated"></p>
+  </div>
+
+  <script>
+    const cityInput = document.getElementById("cityInput");
+    const status = document.getElementById("status");
+    const weatherCard = document.getElementById("weather");
+
+    async function getWeather() {
+      const city = cityInput.value.trim();
+
+      if (!city) {
+        status.textContent = "Please enter a city name.";
+        weatherCard.style.display = "none";
+        return;
+      }
+
+      status.textContent = "Loading weather...";
+      weatherCard.style.display = "none";
+
+      try {
+        // Step 1: Find city coordinates
+        const geoResponse = await fetch(
+          "https://geocoding-api.open-meteo.com/v1/search?name=" +
+          encodeURIComponent(city) +
+          "&count=1&language=en&format=json"
+        );
+
+        if (!geoResponse.ok) {
+          throw new Error("Could not search for the city.");
+        }
+
+        const geoData = await geoResponse.json();
+
+        if (!geoData.results || geoData.results.length === 0) {
+          throw new Error("City not found. Try another name.");
+        }
+
+        const place = geoData.results[0];
+
+        // Step 2: Get current weather
+        const weatherUrl =
+          "https://api.open-meteo.com/v1/forecast" +
+          `?latitude=${place.latitude}` +
+          `&longitude=${place.longitude}` +
+          "&current=temperature_2m,relative_humidity_2m," +
+          "apparent_temperature,wind_speed_10m,weather_code" +
+          "&timezone=auto";
+
+        const weatherResponse = await fetch(weatherUrl);
+
+        if (!weatherResponse.ok) {
+          throw new Error("Could not load weather data.");
+        }
+
+        const weatherData = await weatherResponse.json();
+        const current = weatherData.current;
+
+        document.getElementById("cityName").textContent = place.name;
+        document.getElementById("countryName").textContent =
+          place.country || "";
+
+        document.getElementById("temperature").textContent =
+          `${Math.round(current.temperature_2m)}°C`;
+
+        document.getElementById("condition").textContent =
+          getCondition(current.weather_code);
+
+        document.getElementById("feelsLike").textContent =
+          `🌡️ Feels like: ${current.apparent_temperature}°C`;
+
+        document.getElementById("humidity").textContent =
+          `💧 Humidity: ${current.relative_humidity_2m}%`;
+
+        document.getElementById("wind").textContent =
+          `💨 Wind speed: ${current.wind_speed_10m} km/h`;
+
+        document.getElementById("updated").textContent =
+          `Updated: ${current.time.replace("T", " ")}`;
+
+        status.textContent = "Weather loaded successfully.";
+        weatherCard.style.display = "block";
+
+      } catch (error) {
+        status.textContent = error.message;
+        weatherCard.style.display = "none";
+      }
+    }
+
+    function getCondition(code) {
+      if (code === 0) return "☀️ Clear sky";
+      if ([1, 2, 3].includes(code)) return "⛅ Partly cloudy";
+      if ([45, 48].includes(code)) return "🌫️ Fog";
+      if ([51, 53, 55, 56, 57].includes(code)) return "🌦️ Drizzle";
+      if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) {
+        return "🌧️ Rain";
+      }
+      if ([71, 73, 75, 77, 85, 86].includes(code)) return "❄️ Snow";
+      if ([95, 96, 99].includes(code)) return "⛈️ Thunderstorm";
+      return "🌤️ Weather information";
+    }
+
+    document.getElementById("searchBtn")
+      .addEventListener("click", getWeather);
+
+    cityInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") getWeather();
+    });
+  </script>
+</body>
+</html>
