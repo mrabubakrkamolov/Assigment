@@ -7,87 +7,193 @@
     <title>mainHtml</title>
 
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+       
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #EFE8DE;
-            color: #1e293b;
-            padding: 40px 20px;
-            line-height: 1.5;
-        }
 
-        .container {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-        header {
-            margin-bottom: 32px;
-        }
+    background:
+        linear-gradient(
+            rgba(5, 8, 20, 0.78),
+            rgba(5, 8, 20, 0.88)
+        ),
+        url("https://i.pinimg.com/1200x/c6/14/f0/c614f0217b004c04c1f256436e4adcde.jpg");
 
-        h1 {
-            font-size: 1.8rem;
-            color: #334155;
-            margin-bottom: 6px;
-        }
+    background-color: #090d18;
+    background-size: cover;
+    background-position: center top;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
 
-        p.subtitle {
-            color: #64748b;
-            font-size: 0.95rem;
-        }
+    color: #f5f5f5;
+    padding: 40px 20px;
+    line-height: 1.5;
+}
 
-        .title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #334155;
-            margin: 24px 0 12px;
-            padding-bottom: 6px;
-            text-align: center;
-            border-bottom: 1px solid #e2e8f0;
-        }
 
-        .list {
-            list-style: none;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
+.container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
 
-        .list a {
-            display: block;
-            text-decoration: none;
-            background-color: #C88865;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            padding: 10px 14px;
-            color: #EFE8DE;
-            font-size: 0.9rem;
-            font-weight: 500;
-            text-align: center;
-            transition: all 0.15s ease;
-        }
+/* Header */
+header {
+    margin-bottom: 32px;
+    text-align: center;
+    position: relative;
+}
 
-        .list a:hover {
-            background-color: #eff6ff;
-            border-color: #0b0b0b;
-            color: #343434;
-            transform: translateY(-1px);
-        }
+h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #f5f5f5;
+    margin-bottom: 6px;
+    text-shadow:
+        3px 3px 0 #e62429,
+        6px 6px 0 #1257a6;
+}
 
-        footer {
-            margin-top: 40px;
-            text-align: center;
-            font-size: 0.85rem;
-            color: #adaeaf;
-        }
+p.subtitle {
+    color: #aab9d6;
+    font-size: 0.95rem;
+}
+
+/* Section titles */
+.title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 30px 0 14px;
+    padding: 9px 16px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #b80f1d, #e62429);
+    border: 2px solid #ff6468;
+    border-radius: 5px;
+    box-shadow: 4px 4px 0 #1257a6;
+    transform: skew(-2deg);
+}
+
+/* Task list */
+.list {
+    width: 100%;
+    max-width: 650px;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.list li {
+    min-width: 0;
+}
+
+.list a {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    text-decoration: none;
+    background: linear-gradient(135deg, #151d30, #101522);
+    border: 1px solid #294d80;
+    border-left: 4px solid #e62429;
+    border-radius: 6px;
+    padding: 13px 14px;
+    color: #e9efff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+}
+
+/* Spider-Man inspired web pattern */
+.list a::before {
+    content: "";
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    top: -45px;
+    right: -35px;
+    border: 1px solid rgba(230, 36, 41, 0.2);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 8px rgba(18, 87, 166, 0.08),
+        0 0 0 16px rgba(230, 36, 41, 0.06);
+    pointer-events: none;
+}
+
+.list a:hover {
+    background: linear-gradient(135deg, #e62429, #a90e1a);
+    color: #ffffff;
+    border-color: #ff7276;
+    border-left-color: #ffffff;
+    transform: translateY(-3px);
+    box-shadow: 4px 4px 0 #1257a6;
+}
+
+/* Keyboard accessibility */
+.list a:focus-visible {
+    outline: 3px solid #5da9ff;
+    outline-offset: 4px;
+}
+
+/* Main content */
+.main {
+    width: 100%;
+    max-width: 700px;
+}
+
+/* Footer */
+footer {
+    margin-top: 45px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #7f91b5;
+}
+
+footer time {
+    color: #e62429;
+    font-weight: 700;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+    body {
+        padding: 30px 15px;
+    }
+
+    h1 {
+        letter-spacing: 1px;
+    }
+
+    .list {
+        gap: 9px;
+    }
+
+    .list a {
+        padding: 12px 7px;
+        font-size: 0.78rem;
+    }
+
+    .title {
+        font-size: 1rem;
+        letter-spacing: 1px;
+    }
+}
+
     </style>
 </head>
 
@@ -164,8 +270,19 @@
             <h2 class="title">Week 6-1</h2>
             <ul class="list">
                 <li><a href="./week6-1/task1.html">Random Joke</a></li>
+                <li><a href="./week6-1/task2.html">Random Post</a></li>
+                <li><a href="./week6-1/task3.html">Random User</a></li>
 
             </ul>
+
+            </ul>
+            <h2 class="title">Week 7</h2>
+            <ul class="list">
+                <li><a href="./week7/task1.html">Book Search</a></li>
+
+            </ul>
+
+
         </main>
 
         <footer class="footer">
