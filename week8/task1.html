@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hero Registration</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: system-ui, sans-serif;
+        padding: 40px 24px;
+        max-width: 480px;
+        margin: 0 auto;
+        min-height: 100vh;
+        color: #ffffff;
+        background:
+            radial-gradient(circle at 10% 10%, rgba(239, 35, 60, 0.25), transparent 30%),
+            radial-gradient(circle at 90% 90%, rgba(0, 102, 204, 0.3), transparent 35%),
+            #080d1b;
+        position: relative;
+    }
+
+    body::before {
+        content: "🕷";
+        position: fixed;
+        top: 12px;
+        right: 25px;
+        font-size: 60px;
+        opacity: 0.12;
+        pointer-events: none;
+    }
+
+    h2 {
+        font-size: 28px;
+        font-weight: 900;
+        text-transform: uppercase;
+        text-align: center;
+        letter-spacing: 2px;
+        margin-bottom: 30px;
+        color: #ffffff;
+        text-shadow:
+            2px 2px 0 #e62429,
+            4px 4px 0 #0645ad;
+    }
+
+    h2::before {
+        content: "🕸 ";
+    }
+
+    .field-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 7px;
+        color: #dbeafe;
+    }
+
+    input {
+        display: block;
+        width: 100%;
+        padding: 13px 14px;
+        font-size: 14px;
+        color: #ffffff;
+        background: #111b30;
+        border: 2px solid #29476d;
+        border-radius: 10px;
+        outline: none;
+        transition: border-color .2s, background .2s, box-shadow .2s;
+        font-family: inherit;
+    }
+
+    input::placeholder {
+        color: #8294b3;
+    }
+
+    input:focus {
+        border-color: #168cff;
+        background: #132544;
+        box-shadow: 0 0 0 3px rgba(22, 140, 255, 0.2);
+    }
+
+    input[aria-invalid="true"] {
+        border-color: #ff334f;
+        background: #301521;
+        box-shadow: 0 0 8px rgba(255, 51, 79, 0.15);
+    }
+
+    input.valid {
+        border-color: #22c55e;
+        background: #10271f;
+        box-shadow: 0 0 8px rgba(34, 197, 94, 0.1);
+    }
+
+    .err {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #ff647c;
+        margin-top: 6px;
+        min-height: 16px;
+    }
+
+    button[type="submit"] {
+        width: 100%;
+        margin-top: 10px;
+        padding: 14px;
+        background: linear-gradient(110deg, #e62429 0%, #c8102e 50%, #0759bd 100%);
+        color: #ffffff;
+        border: 2px solid #ffffff;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        cursor: pointer;
+        box-shadow: 0 5px 0 #07152b;
+        transition: transform .2s, box-shadow .2s, opacity .2s;
+    }
+
+    button[type="submit"]:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 0 #07152b, 0 0 18px rgba(230, 36, 41, 0.35);
+    }
+
+    button[type="submit"]:active:not(:disabled) {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #07152b;
+    }
+
+    button[type="submit"]:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        filter: grayscale(0.6);
+    }
+
+    #success {
+        display: none;
+        margin-top: 20px;
+        padding: 16px;
+        background: #10271f;
+        border: 2px solid #22c55e;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #86efac;
+        font-weight: 700;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.1);
+    }
+
+    @media (max-width: 480px) {
+        body {
+            padding: 30px 18px;
+        }
+
+        h2 {
+            font-size: 23px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+    <h2>Student Registration</h2>
+
+    <form id="regForm" action="#" method="post" novalidate>
+
+        <!-- Student ID -->
+        <div class="field-group">
+            <label for="sid">Student ID</label>
+            <input
+                type="text"
+                id="sid"
+                name="sid"
+                required
+                placeholder="9-digit number"
+                aria-describedby="sid-err"
+                aria-invalid="false"
+            >
+            <span id="sid-err" class="err" aria-live="polite"></span>
+        </div>
+
+        <!-- Email -->
+        <div class="field-group">
+            <label for="email">Email</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                placeholder="name@example.com"
+                aria-describedby="email-err"
+                aria-invalid="false"
+            >
+            <span id="email-err" class="err" aria-live="polite"></span>
+        </div>
+
+        <!-- Password -->
+        <div class="field-group">
+            <label for="pw">Password</label>
+            <input
+                type="password"
+                id="pw"
+                name="pw"
+                required
+                minlength="8"
+                placeholder="At least 8 characters"
+                aria-describedby="pw-err"
+                aria-invalid="false"
+            >
+            <span id="pw-err" class="err" aria-live="polite"></span>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="field-group">
+            <label for="cfm">Confirm Password</label>
+            <input
+                type="password"
+                id="cfm"
+                name="cfm"
+                required
+                placeholder="Repeat your password"
+                aria-describedby="cfm-err"
+                aria-invalid="false"
+            >
+            <span id="cfm-err" class="err" aria-live="polite"></span>
+        </div>
+
+        <!-- Phone -->
+        <div class="field-group">
+            <label for="phone">Phone</label>
+            <input
+                type="text"
+                id="phone"
+                name="phone"
+                required
+                placeholder="010-1234-5678"
+                aria-describedby="phone-err"
+                aria-invalid="false"
+            >
+            <span id="phone-err" class="err" aria-live="polite"></span>
+        </div>
+
+        <button type="submit" id="submit-btn" disabled>
+            Register
+        </button>
+
+    </form>
+
+    <div id="success" role="status" aria-live="polite">
+        Registration complete!
+    </div>
+
+    <script>
+        // Field references
+        const form = document.getElementById('regForm');
+        const sid = document.getElementById('sid');
+        const email = document.getElementById('email');
+        const pw = document.getElementById('pw');
+        const cfm = document.getElementById('cfm');
+        const phone = document.getElementById('phone');
+        const submitBtn = document.getElementById('submit-btn');
+        const success = document.getElementById('success');
+
+        // Patterns
+        const SID_PATTERN = /^\d{9}$/;
+        const PHONE_PATTERN = /^\d{3}-\d{4}-\d{4}$/;
+
+        // Update error message and accessibility attributes
+        function setErr(input, errId, msg) {
+            document.getElementById(errId).textContent = msg;
+
+            if (msg) {
+                input.setAttribute('aria-invalid', 'true');
+                input.classList.remove('valid');
+            } else {
+                input.setAttribute('aria-invalid', 'false');
+
+                if (input.value) {
+                    input.classList.add('valid');
+                } else {
+                    input.classList.remove('valid');
+                }
+            }
+        }
+
+        // Validate Student ID
+        function validateSid() {
+            if (sid.validity.valueMissing) {
+                setErr(sid, 'sid-err', 'Student ID is required.');
+            } else if (!SID_PATTERN.test(sid.value)) {
+                setErr(sid, 'sid-err', 'Enter exactly 9 digits.');
+            } else {
+                setErr(sid, 'sid-err', '');
+            }
+        }
+
+        // Validate Email
+        function validateEmail() {
+            if (email.validity.valueMissing) {
+                setErr(email, 'email-err', 'Email is required.');
+            } else if (email.validity.typeMismatch) {
+                setErr(email, 'email-err', 'Enter a valid email address.');
+            } else {
+                setErr(email, 'email-err', '');
+            }
+        }
+
+        // Validate Password
+        function validatePw() {
+            if (pw.validity.valueMissing) {
+                setErr(pw, 'pw-err', 'Password is required.');
+            } else if (pw.validity.tooShort) {
+                setErr(pw, 'pw-err', 'Password must be at least 8 characters.');
+            } else {
+                setErr(pw, 'pw-err', '');
+            }
+
+            // Recheck confirmation when password changes
+            if (cfm.value !== '') {
+                validateCfm();
+            }
+        }
+
+        // Validate Confirm Password using setCustomValidity()
+        function validateCfm() {
+            if (cfm.validity.valueMissing) {
+                cfm.setCustomValidity('');
+                setErr(cfm, 'cfm-err', 'Please confirm your password.');
+            } else if (cfm.value !== pw.value) {
+                cfm.setCustomValidity('Passwords do not match.');
+                setErr(cfm, 'cfm-err', 'Passwords do not match.');
+            } else {
+                cfm.setCustomValidity('');
+                setErr(cfm, 'cfm-err', '');
+            }
+        }
+
+        // Validate Phone
+        function validatePhone() {
+            if (phone.validity.valueMissing) {
+                setErr(phone, 'phone-err', 'Phone number is required.');
+            } else if (!PHONE_PATTERN.test(phone.value)) {
+                setErr(phone, 'phone-err', 'Format: 010-1234-5678');
+            } else {
+                setErr(phone, 'phone-err', '');
+            }
+        }
+
+        // Bonus: enable Submit only when every field is valid
+        function updateSubmitState() {
+            const allValid =
+                sid.validity.valid &&
+                email.validity.valid &&
+                pw.validity.valid &&
+                cfm.validity.valid &&
+                PHONE_PATTERN.test(phone.value) &&
+                SID_PATTERN.test(sid.value);
+
+            submitBtn.disabled = !allValid;
+        }
+
+        // All fields: input event listeners
+        sid.addEventListener('input', () => {
+            validateSid();
+            updateSubmitState();
+        });
+
+        email.addEventListener('input', () => {
+            validateEmail();
+            updateSubmitState();
+        });
+
+        pw.addEventListener('input', () => {
+            validatePw();
+            updateSubmitState();
+        });
+
+        cfm.addEventListener('input', () => {
+            validateCfm();
+            updateSubmitState();
+        });
+
+        phone.addEventListener('input', () => {
+            validatePhone();
+            updateSubmitState();
+        });
+
+        // Submit event
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            validateSid();
+            validateEmail();
+            validatePw();
+            validateCfm();
+            validatePhone();
+            updateSubmitState();
+
+            if (form.checkValidity()) {
+                console.log('submitted');
+
+                form.style.display = 'none';
+                success.style.display = 'block';
+            }
+        });
+    </script>
+
+</body>
+</html>
