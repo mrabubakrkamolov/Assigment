@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration with HTML5 Validation</title>
+    <style>
+        :root {
+            --paper: #080d18;
+            --ink: #f8fafc;
+            --muted: #a8b6cc;
+            --lapis: #0878f9;
+            --turquoise: #25a7ff;
+            --saffron: #ffcc33;
+            --brick: #ff304f;
+            --line: #293c59;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Segoe UI", system-ui, sans-serif;
+            background:
+                radial-gradient(ellipse at 50% 0%, #172c50 0%, transparent 55%),
+                linear-gradient(145deg, #080d18, #101a2e 55%, #160b17);
+            color: var(--ink);
+            padding: 35px 16px 48px;
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Spider-web background */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .12;
+            background-image:
+                repeating-conic-gradient(from 0deg at 50% 0%,
+                    transparent 0deg 14deg,
+                    #8bbcff 14.3deg 14.7deg,
+                    transparent 15deg 30deg),
+                repeating-radial-gradient(circle at 50% 0%,
+                    transparent 0 48px,
+                    #8bbcff 49px 50px,
+                    transparent 51px 80px);
+            z-index: -1;
+        }
+
+        .page {
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        /* Red and blue comic strip */
+        .band {
+            height: 12px;
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(90deg,
+                    #e62429 0%,
+                    #ff304f 30%,
+                    #0878f9 70%,
+                    #25a7ff 100%);
+            box-shadow: 0 0 22px rgba(8, 120, 249, .4);
+        }
+
+        .sheet {
+            position: relative;
+            background: linear-gradient(155deg, #111d31, #0b1220 75%);
+            border: 1px solid #293c59;
+            border-top: none;
+            border-radius: 0 0 18px 18px;
+            padding: 30px;
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, .4),
+                0 0 35px rgba(8, 120, 249, .09);
+            overflow: hidden;
+        }
+
+        /* Red corner accent */
+        .sheet::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 110px;
+            height: 110px;
+            background: linear-gradient(135deg,
+                    transparent 50%,
+                    rgba(230, 36, 41, .13) 50%);
+            pointer-events: none;
+        }
+
+        h1 {
+            position: relative;
+            font-size: 2rem;
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            line-height: 1.2;
+            color: #fff;
+            text-shadow:
+                2px 2px 0 #e62429,
+                4px 4px 0 #0878f9;
+        }
+
+        h1::before {
+            content: "SPIDER-MAN";
+            display: block;
+            margin-bottom: 10px;
+            font-size: .7rem;
+            letter-spacing: 5px;
+            color: #ff4058;
+            text-shadow: none;
+        }
+
+        .lead {
+            color: var(--muted);
+            font-size: .9rem;
+            margin: 12px 0 25px;
+            max-width: 480px;
+        }
+
+        /* Form progress */
+        .meter {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(8, 120, 249, .07);
+            border: 1px solid #263e60;
+            border-radius: 12px;
+        }
+
+        .meter-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: .8rem;
+            color: var(--muted);
+            margin-bottom: 9px;
+        }
+
+        .track {
+            height: 9px;
+            background: #202d42;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .fill {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #e62429, #ff4058, #0878f9);
+            border-radius: 20px;
+            transition: width .3s ease;
+            box-shadow: 0 0 12px rgba(8, 120, 249, .6);
+        }
+
+        /* Field sections */
+        fieldset {
+            border: 1px solid #293c59;
+            border-radius: 13px;
+            padding: 18px 18px 5px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, .015);
+            transition: border-color .2s;
+        }
+
+        fieldset:focus-within {
+            border-color: #0878f9;
+            box-shadow: 0 0 18px rgba(8, 120, 249, .07);
+        }
+
+        legend {
+            padding: 0 10px;
+            font-weight: 850;
+            color: #ff4058;
+            font-size: .85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0 16px;
+        }
+
+        .item {
+            margin-bottom: 15px;
+        }
+
+        .item.wide {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            font-size: .82rem;
+            font-weight: 750;
+            margin-bottom: 7px;
+            color: #e2eaf6;
+        }
+
+        label small {
+            font-weight: 500;
+            color: #8da5c7;
+        }
+
+        /* Inputs */
+        input:not([type="checkbox"]):not([type="range"]),
+        select {
+            display: block;
+            width: 100%;
+            padding: 12px 13px;
+            font: inherit;
+            font-size: .92rem;
+            color: #f8fafc;
+            border: 1.5px solid #304665;
+            border-radius: 9px;
+            background: #0a1323;
+            transition:
+                border-color .2s,
+                background .2s,
+                box-shadow .2s;
+        }
+
+        input::placeholder {
+            color: #71839f;
+        }
+
+        select {
+            color-scheme: dark;
+        }
+
+        input:focus-visible,
+        select:focus-visible {
+            outline: 2px solid #0878f9;
+            outline-offset: 2px;
+            border-color: #25a7ff;
+            box-shadow: 0 0 15px rgba(37, 167, 255, .13);
+        }
+
+        /* Valid and invalid states */
+        input:not(:placeholder-shown):valid {
+            border-color: #22c55e;
+            background: #0d211e;
+        }
+
+        input:not(:placeholder-shown):invalid {
+            border-color: #ff4058;
+            background: #26121c;
+        }
+
+        input[type="date"]:valid {
+            border-color: #22c55e;
+        }
+
+        select:valid {
+            border-color: #22c55e;
+        }
+
+        select:invalid {
+            color: #8da5c7;
+        }
+
+        /* Coding experience slider */
+        .slider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slider input {
+            flex: 1;
+            accent-color: #ff304f;
+        }
+
+        output {
+            min-width: 3.4em;
+            text-align: right;
+            font-weight: 850;
+            color: #ffcc33;
+        }
+
+        /* Terms */
+        .terms {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin: 5px 0 22px;
+            font-size: .88rem;
+            color: #cbd5e1;
+        }
+
+        .terms input {
+            margin-top: 4px;
+            width: 17px;
+            height: 17px;
+            flex-shrink: 0;
+            accent-color: #e62429;
+        }
+
+        /* Buttons */
+        .actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        button {
+            font: inherit;
+            font-weight: 850;
+            padding: 12px 20px;
+            border-radius: 9px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            transition:
+                transform .2s,
+                background .2s,
+                box-shadow .2s;
+        }
+
+        .primary {
+            background: linear-gradient(110deg, #e62429, #c8102e 55%, #0878f9);
+            color: #fff;
+            flex: 1;
+            box-shadow: 0 5px 0 #07101e;
+        }
+
+        .primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #07101e, 0 0 20px rgba(230, 36, 41, .2);
+        }
+
+        .primary:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #07101e;
+        }
+
+        .ghost {
+            background: #152238;
+            color: #dbeafe;
+            border-color: #304665;
+        }
+
+        .ghost:hover {
+            background: #203450;
+            border-color: #0878f9;
+        }
+
+        /* Success receipt */
+        #receipt {
+            display: none;
+            margin-top: 24px;
+            border: 1px solid #22c55e;
+            border-left: 5px solid #22c55e;
+            border-radius: 12px;
+            padding: 18px;
+            background: #0d211e;
+            box-shadow: 0 0 22px rgba(34, 197, 94, .07);
+        }
+
+        #receipt h2 {
+            font-size: 1.15rem;
+            margin-bottom: 12px;
+            color: #86efac;
+        }
+
+        #receipt dl {
+            display: grid;
+            grid-template-columns: max-content 1fr;
+            gap: 6px 14px;
+            font-size: .88rem;
+        }
+
+        #receipt dt {
+            color: #8da5c7;
+        }
+
+        #receipt dd {
+            color: #f1f5f9;
+            overflow-wrap: anywhere;
+        }
+
+        /* Mobile */
+        @media (max-width: 560px) {
+            body {
+                padding: 22px 12px 35px;
+            }
+
+            .sheet {
+                padding: 24px 17px;
+            }
+
+            h1 {
+                font-size: 1.65rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .item.wide {
+                grid-column: auto;
+            }
+
+            fieldset {
+                padding: 15px 13px 4px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="band"></div>
+        <div class="sheet">
+            <h1>Student Registration</h1>
+            <div class="meter" aria-live="polite">
+                <div class="meter-top"><span>Form progress</span><span id="meterText">0 / 0 fields valid</span></div>
+                <div class="track">
+                    <div class="fill" id="meterFill"></div>
+                </div>
+            </div>
+
+            <form id="regForm" method="post" action="#">
+                <fieldset>
+                    <legend>About you</legend>
+                    <div class="grid">
+                        <div class="item wide">
+                            <label for="fullName">Full name</label>
+                            <input type="text" id="fullName" name="fullName" placeholder="First and last name" required
+                                minlength="3" maxlength="60">
+                        </div>
+                        <div class="item">
+                            <label for="sid">Student ID <small>(9 digits)</small></label>
+                            <input type="text" id="sid" name="sid" placeholder="202612345" inputmode="numeric" required
+                                pattern="[0-9]{9}" title="Student ID must be exactly 9 digits">
+                        </div>
+                        <div class="item">
+                            <label for="birth">Date of birth</label>
+                            <input type="date" id="birth" name="birth" required min="1980-01-01" max="2010-12-31">
+                        </div>
+                        <div class="item wide">
+                            <label for="major">Major</label>
+                            <select id="major" name="major" required>
+                                <option value="" selected disabled>Choose your major</option>
+                                <option>Computer Science</option>
+                                <option>Software Engineering</option>
+                                <option>Information Technology</option>
+                                <option>Electrical Engineering</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Account</legend>
+                    <div class="grid">
+                        <div class="item wide">
+                            <label for="mail">Email</label>
+                            <input type="email" id="mail" name="mail" placeholder="name@gachon.ac.kr" required>
+                        </div>
+                        <div class="item">
+                            <label for="pw">Password <small>(min 8)</small></label>
+                            <input type="password" id="pw" name="pw" placeholder="At least 8 characters" required
+                                minlength="8">
+                        </div>
+                        <div class="item">
+                            <label for="tel">Telephone</label>
+                            <input type="tel" id="tel" name="tel" placeholder="010-1234-5678" required
+                                pattern="01[0-9]-[0-9]{4}-[0-9]{4}" title="Format: 010-1234-5678">
+                        </div>
+                        <div class="item wide">
+                            <label for="years">Years of coding experience</label>
+                            <div class="slider">
+                                <input type="range" id="years" name="years" min="0" max="10" value="0">
+                                <output id="yearsOut" for="years">0 yrs</output>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="terms">
+                    <input type="checkbox" id="agree" name="agree" required>
+                    <label for="agree" style="font-weight:400;margin:0">I agree to the course rules and the terms of
+                        use.</label>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="primary">Check validation</button>
+                    <button type="reset" class="ghost">Reset</button>
+                </div>
+            </form>
+
+            <section id="receipt" aria-live="polite">
+                <h2>All fields are valid ✔</h2>
+                <dl id="receiptList"></dl>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('regForm');
+        const fields = [...form.querySelectorAll('input:not([type="range"]), select')];
+        const fill = document.getElementById('meterFill');
+        const meterText = document.getElementById('meterText');
+        const years = document.getElementById('years');
+        const yearsOut = document.getElementById('yearsOut');
+        const receipt = document.getElementById('receipt');
+
+        function refreshMeter() {
+            const good = fields.filter(f => f.checkValidity()).length;
+            fill.style.width = (good / fields.length * 100) + '%';
+            meterText.textContent = good + ' / ' + fields.length + ' fields valid';
+        }
+
+        years.addEventListener('input', () => {
+            yearsOut.textContent = years.value + (years.value === '1' ? ' yr' : ' yrs');
+        });
+
+        form.addEventListener('input', refreshMeter);
+        form.addEventListener('change', refreshMeter);
+        form.addEventListener('reset', () => {
+            setTimeout(() => { refreshMeter(); yearsOut.textContent = '0 yrs'; receipt.style.display = 'none'; });
+        });
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();          // the browser has already blocked the event if anything is invalid
+            const data = new FormData(form);
+            const list = document.getElementById('receiptList');
+            list.innerHTML = '';
+            const labels = {
+                fullName: 'Name', sid: 'Student ID', birth: 'Born', major: 'Major',
+                mail: 'Email', tel: 'Phone', years: 'Coding'
+            };
+            Object.entries(labels).forEach(([key, text]) => {
+                const dt = document.createElement('dt');
+                const dd = document.createElement('dd');
+                dt.textContent = text;
+                dd.textContent = data.get(key) + (key === 'years' ? ' yrs' : '');
+                list.append(dt, dd);
+            });
+            receipt.style.display = 'block';
+            receipt.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+
+        refreshMeter();
+    </script>
+</body>
+
+</html>
