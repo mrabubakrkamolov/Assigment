@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<body style="font-family:system-ui;padding:24px">
+
+<style>
+  .btn {
+    display: inline-block;
+    background: #1a7f5a;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+  }
+
+  /* Visible focus ring for keyboard users */
+  .btn:focus-visible,
+  .close-btn:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 4px;
+  }
+
+  .close-btn {
+    margin-left: 16px;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+</style>
+
+<p>Try pressing Tab then Enter:</p>
+
+<!-- Fixed: using a real button -->
+<button type="button" class="btn" onclick="alert('Clicked!')">
+  Submit form
+</button>
+
+<!-- Fixed: added accessible label -->
+<button
+  type="button"
+  class="close-btn"
+  aria-label="Close"
+  onclick="alert('Closed')"
+>
+  ✕
+</button>
+
+<div id="result" style="margin-top:16px;font-size:14px;color:#666"></div>
+
+<script>
+  document.querySelectorAll('button').forEach(button => {
+    button.addEventListener('click', () => {
+      document.getElementById('result').textContent =
+        '✅ Activated! (works by keyboard and mouse)';
+    });
+  });
+</script>
+
+</body>
+</html>
