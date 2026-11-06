@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Lighthouse fix</title>
+
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+    defer>
+  </script>
+
+  <style>
+    body {
+      font-family: system-ui;
+      padding: 24px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    img {
+      width: 100%;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    h2 {
+      color: #e85d04;
+    }
+
+    .report {
+      margin-top: 50px;
+      border-top: 3px solid #15803d;
+      padding-top: 30px;
+    }
+
+    .score-container {
+      display: flex;
+      gap: 20px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .score {
+      flex: 1;
+      min-width: 200px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .score-number {
+      font-size: 48px;
+      font-weight: bold;
+      color: #15803d;
+    }
+
+    .box {
+      border: 1px solid #dbe3ef;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 15px 0;
+    }
+
+    .problem {
+      background: #fff7ed;
+      border-left: 5px solid #f97316;
+      padding: 15px;
+      margin: 15px 0;
+    }
+
+    .solution {
+      background: #f0fdf4;
+      border-left: 5px solid #15803d;
+      padding: 15px;
+      margin: 15px 0;
+    }
+
+    pre {
+      background: #f4f4f4;
+      padding: 12px;
+      overflow-x: auto;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <main>
+
+    <!-- ORIGINAL WEB PAGE -->
+
+    <h1>Performance Test Page</h1>
+
+    <p>
+      This page has performance issues. Fix them!
+    </p>
+
+    <!-- ORIGINAL IMAGES -->
+
+    <img
+      src="https://picsum.photos/1200/800"
+      alt="Random photo from Lorem Picsum"
+      width="1200"
+      height="800"
+    >
+
+    <img
+      src="https://picsum.photos/1200/801"
+      alt="Random photo 2"
+      width="1200"
+      height="801"
+      loading="lazy"
+    >
+
+    <img
+      src="https://picsum.photos/1200/802"
+      alt="Random photo 3"
+      width="1200"
+      height="802"
+      loading="lazy"
+    >
+
+    <h2>YOUR FIXES:</h2>
+
+    <p>
+      Add defer to the script, add loading="lazy" to below-fold images,
+      add width/height attributes.
+    </p>
+
+
+    <!-- PERFORMANCE REPORT -->
+
+    <div class="report">
+
+      <h2 style="color: #15803d;">
+        Lighthouse Performance Results
+      </h2>
+
+      <div class="score-container">
+
+        <div class="score">
+          <div class="score-number">85</div>
+
+          <div>
+            <strong>Original Score</strong>
+          </div>
+        </div>
+
+        <div class="score">
+          <div class="score-number">100</div>
+
+          <div>
+            <strong>Optimized Score</strong>
+          </div>
+        </div>
+
+      </div>
+
+
+      <h2 style="color: #15803d;">
+        Performance improved by 15 points!
+      </h2>
+
+
+      <h2 style="color: #15803d;">
+        Worst Performance Metric
+      </h2>
+
+      <p>
+        The worst metric identified in the original audit was
+        <strong>Cumulative Layout Shift (CLS)</strong>.
+      </p>
+
+      <p>
+        <strong>Original CLS Value: 0.279</strong>
+      </p>
+
+      <div class="problem">
+
+        <p>
+          <strong>Cause:</strong>
+        </p>
+
+        <p>
+          Lighthouse identified unsized image elements as the main cause
+          of layout shifts.
+        </p>
+
+        <p>
+          The browser did not reserve space for images before they loaded,
+          causing page elements to move.
+        </p>
+
+      </div>
+
+
+      <h2 style="color: #15803d;">
+        Optimizations Applied
+      </h2>
+
+
+      <div class="solution">
+
+        <h3>1. JavaScript Loading</h3>
+
+        <p>
+          Added the <strong>defer</strong> attribute to the jQuery script
+          to avoid blocking HTML parsing.
+        </p>
+
+        <p>
+          <strong>Before:</strong>
+        </p>
+
+        <pre>&lt;script src="jquery.min.js"&gt;&lt;/script&gt;</pre>
+
+        <p>
+          <strong>After:</strong>
+        </p>
+
+        <pre>&lt;script src="jquery.min.js" defer&gt;&lt;/script&gt;</pre>
+
+      </div>
+
+
+      <div class="solution">
+
+        <h3>2. Image Dimensions</h3>
+
+        <p>
+          Added explicit <strong>width</strong> and
+          <strong>height</strong> attributes to all three images.
+        </p>
+
+        <p>
+          This allows the browser to reserve space before the images
+          finish loading and helps reduce layout shifts.
+        </p>
+
+        <pre>&lt;img
+  src="image.jpg"
+  width="1200"
+  height="800"
+  alt="Example image"
+&gt;</pre>
+
+      </div>
+
+
+      <div class="solution">
+
+        <h3>3. Lazy Loading</h3>
+
+        <p>
+          Added <strong>loading="lazy"</strong> to the second and third
+          images because they appear further down the page.
+        </p>
+
+        <pre>&lt;img
+  src="image.jpg"
+  loading="lazy"
+  alt="Example image"
+&gt;</pre>
+
+      </div>
+
+
+      <div class="solution">
+
+        <h3>4. Performance Result</h3>
+
+        <p>
+          After applying the optimizations, the Lighthouse Performance
+          score improved from <strong>85</strong> to
+          <strong>100</strong>.
+        </p>
+
+        <p>
+          The main improvement came from preventing layout shifts caused
+          by images and improving how JavaScript and images load.
+        </p>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</body>
+</html>

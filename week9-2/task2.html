@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<body style="font-family:system-ui;padding:24px;max-width:500px;margin:auto">
+
+    <h2>Image Format Practice</h2>
+
+    <picture>
+
+        <source srcset="
+        https://picsum.photos/400/200.webp 400w,
+        https://picsum.photos/800/400.webp 800w
+      " type="image/webp">
+
+        <img src="https://picsum.photos/800/400" srcset="
+        https://picsum.photos/400/200 400w,
+        https://picsum.photos/800/400 800w
+      " sizes="(max-width: 480px) 400px, 800px" alt="A random landscape photograph" width="800" height="400"
+            fetchpriority="high">
+
+    </picture>
+
+
+    <p style="margin-top:12px;font-size:13px;color:#666">
+        This image uses WebP for better compression, JPEG as a fallback,
+        and responsive srcset sizes to load the most suitable image for
+        different screen sizes.
+    </p>
+
+</body>
+
+</html>

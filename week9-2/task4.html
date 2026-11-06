@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Web Performance Report</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #ffffff;
+            color: #111111;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .page {
+            width: 900px;
+            margin: 0 auto;
+            padding: 70px 75px;
+            background: white;
+        }
+
+        .cover {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .link {
+            color: #2563eb;
+            font-size: 20px;
+        }
+
+        .link a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        h1 {
+            font-size: 48px;
+            line-height: 1.1;
+            margin: 0;
+        }
+
+        h2 {
+            font-size: 34px;
+            margin-top: 0;
+            margin-bottom: 35px;
+        }
+
+        h3 {
+            font-size: 25px;
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-size: 18px;
+            line-height: 1.65;
+        }
+
+        .page-number {
+            margin-top: 70px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        .problem {
+            margin-bottom: 80px;
+        }
+
+        .problem-title {
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 18px;
+        }
+
+        .description {
+            max-width: 750px;
+            margin-bottom: 30px;
+        }
+
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .box {
+            border: 2px solid #222;
+            min-height: 230px;
+            padding: 15px;
+        }
+
+        .box-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .placeholder {
+            height: 170px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #777;
+            background: #f5f5f5;
+            border: 1px dashed #999;
+        }
+
+        pre {
+            background: #111827;
+            color: #f8fafc;
+            padding: 20px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .code-title {
+            font-weight: bold;
+            margin-top: 25px;
+            margin-bottom: 8px;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+
+        .lighthouse {
+            margin-top: 40px;
+        }
+
+        .lighthouse-box {
+            height: 500px;
+            border: 2px dashed #777;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #777;
+            font-size: 20px;
+            margin-top: 25px;
+        }
+
+        .score {
+            display: flex;
+            gap: 40px;
+            margin: 35px 0;
+        }
+
+        .score-box {
+            border: 2px solid #222;
+            padding: 25px;
+            width: 220px;
+            text-align: center;
+        }
+
+        .score-number {
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        .reflection {
+            margin-top: 40px;
+        }
+
+        .reflection p {
+            font-size: 19px;
+        }
+
+        #full_opt{
+            overflow: hidden;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .page {
+                margin: 0;
+                width: 100%;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- PAGE 1 -->
+
+<div class="page cover">
+
+    <div class="link">
+        <a href="https://counter-strike2-one.vercel.app/">Click the link for my Webpage</a>
+    </div>
+
+</div>
+
+
+<!-- PAGE 2 -->
+
+<div class="page page-break">
+
+    <h2>5 main problems and solutions</h2>
+
+
+    <!-- PROBLEM 1 -->
+
+    <div class="problem">
+
+        <div class="problem-title">
+            1 problem - Large image files
+        </div>
+
+        <p class="description">
+            The images on the webpage were large and could increase the
+            amount of data that the browser needed to download.
+            So instead of using JPG or PNG, I converted the images
+            to WebP format to reduce their file size.
+        </p>
+
+        <div class="before-after">
+
+            <div class="box">
+
+                <div class="box-title">
+                    BEFORE
+                </div>
+
+                <div class="placeholder">
+                    <img src="/week9-2/img/before1.png" alt="before img">
+                </div>
+
+            </div>
+
+            <div class="box">
+
+                <div class="box-title">
+                    AFTER
+                </div>
+
+                <div class="placeholder">
+                    <img src="/week9-2/img/after1.png" alt="before img">
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="code-title">
+            Before:
+        </div>
+
+        <pre><code>&lt;img src="movie-poster.jpg"
+alt="Movie poster"&gt;</code></pre>
+
+        <div class="code-title">
+            After:
+        </div>
+
+        <pre><code>&lt;img src="movie-poster.webp"
+alt="Movie poster"&gt;</code></pre>
+
+    </div>
+
+
+    <!-- PROBLEM 2 -->
+
+    <div class="problem">
+
+        <div class="problem-title">
+            2 problem - Images were not lazy loaded
+        </div>
+
+        <p class="description">
+            All images could be loaded immediately, even when they were
+            outside the visible area. I added lazy loading so the browser
+            loads images only when they are needed.
+        </p>
+
+        <div class="code-title">
+            Before:
+        </div>
+
+        <pre><code>&lt;img src="movie-poster.webp"
+alt="Movie poster"&gt;</code></pre>
+
+        <div class="code-title">
+            After:
+        </div>
+
+        <pre><code>&lt;img src="movie-poster.webp"
+alt="Movie poster"
+loading="lazy"&gt;</code></pre>
+
+    </div>
+
+</div>
+
+
+<!-- PAGE 3 -->
+
+<div class="page page-break">
+
+    <!-- PROBLEM 3 -->
+
+    <div class="problem">
+
+        <div class="problem-title">
+            3 problem - Render-blocking JavaScript
+        </div>
+
+        <p class="description">
+            The main JavaScript file could block HTML parsing and delay
+            the page from becoming usable. Since the script uses the DOM,
+            I added the defer attribute.
+        </p>
+
+        <div class="before-after">
+
+            <div class="box">
+
+                <div class="box-title">
+                    BEFORE
+                </div>
+
+                <pre><code>&lt;script
+src="app.js"&gt;
+&lt;/script&gt;</code></pre>
+
+            </div>
+
+            <div class="box">
+
+                <div class="box-title">
+                    AFTER
+                </div>
+
+                <pre><code>&lt;script
+defer
+src="app.js"&gt;
+&lt;/script&gt;</code></pre>
+
+            </div>
+
+        </div>
+
+        <p>
+            With defer, the browser can parse the HTML first and
+            execute the script after the document has been parsed.
+        </p>
+
+    </div>
+
+
+    <!-- PROBLEM 4 -->
+
+    <div class="problem">
+
+        <div class="problem-title">
+            4 problem - CSS was not minified
+        </div>
+
+        <p class="description">
+            The CSS file contained unnecessary spaces, line breaks and
+            formatting. I minified the CSS to reduce the file size
+            and make it faster to download.
+        </p>
+
+        <div class="code-title">
+            Before:
+        </div>
+
+        <pre><code>body {
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}</code></pre>
+
+        <div class="code-title">
+            After:
+        </div>
+
+        <pre><code>body{margin:0;padding:20px;font-family:Arial,sans-serif}</code></pre>
+
+    </div>
+
+
+    <!-- PROBLEM 5 -->
+
+    <div class="problem">
+
+        <div class="problem-title">
+            5 problem - Images had no dimensions
+        </div>
+
+        <p class="description">
+            The images did not have fixed width and height values.
+            I added image dimensions so the browser can reserve the
+            correct space before the images finish loading.
+        </p>
+
+        <div class="code-title">
+            Before:
+        </div>
+
+        <pre><code>&lt;img src="movie-poster.webp"
+alt="Movie poster"&gt;</code></pre>
+
+        <div class="code-title">
+            After:
+        </div>
+
+        <pre><code>&lt;img
+src="movie-poster.webp"
+alt="Movie poster"
+width="300"
+height="450"&gt;</code></pre>
+
+    </div>
+
+</div>
+
+
+<!-- PAGE 4 -->
+
+<div class="page page-break">
+
+    <h2>Before Lighthouse Test</h2>
+
+    <p>
+        First, I ran Lighthouse Performance on my original website
+        to identify the biggest performance problems.
+    </p>
+
+    <div class="score">
+
+        <div class="score-box">
+
+            <div>
+                BEFORE SCORE
+            </div>
+
+            <div class="score-number">
+                ___
+            </div>
+
+            <div>
+               85 / 100
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="lighthouse-box">
+        <img src="/week9-2/img/before2.png" alt="85/100">
+    </div>
+
+</div>
+
+
+<!-- PAGE 5 -->
+
+<div class="page page-break">
+
+    <h2>After Lighthouse Test</h2>
+
+    <p>
+        After applying the five optimizations, I ran Lighthouse again
+        to check whether the website performance improved.
+    </p>
+
+    <div class="score">
+
+        <div class="score-box">
+
+            <div>
+                AFTER SCORE
+            </div>
+
+            <div class="score-number">
+                ___
+            </div>
+
+            <div>
+               100 / 100
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="lighthouse-box" id="full_opt">
+        <img src="/week9-2/img/after2.png" alt="100/100">
+    </div>
+
+
+    <div class="reflection">
+
+        <h2>Reflection</h2>
+
+        <p>
+            The optimization that had the most impact on my website
+            was image optimization. Large images can require a lot of
+            data to be downloaded, so converting them to WebP reduced
+            their file size.
+        </p>
+
+        <p>
+            Lazy loading also helped because images outside the initial
+            viewport did not need to be loaded immediately. This reduced
+            the amount of resources required during the initial page load.
+        </p>
+
+        <p>
+            The other changes also improved the website performance.
+            Using defer prevented the main JavaScript from blocking
+            HTML parsing, CSS minification reduced the stylesheet size,
+            and adding image dimensions helped the browser reserve space
+            for images.
+        </p>
+
+        <p>
+            My Lighthouse Performance score improved from
+            <strong>___</strong> to <strong>___</strong>.
+            This showed me that several small optimizations can improve
+            the overall performance and user experience of a website.
+        </p>
+
+    </div>
+
+</div>
+
+</body>
+</html>
