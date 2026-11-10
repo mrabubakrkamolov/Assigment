@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>404 - Page Not Found</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --red: #e50914;
+      --dark-red: #a00000;
+      --blue: #0b1f3a;
+      --dark: #03050a;
+      --white: #ffffff;
+      --gray: #aeb8c5;
+    }
+
+    body {
+      min-height: 100vh;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      color: var(--white);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 25px;
+
+      overflow: hidden;
+
+      background:
+        radial-gradient(
+          circle at center,
+          rgba(229, 9, 20, 0.15),
+          transparent 40%
+        ),
+        linear-gradient(
+          135deg,
+          #020308 0%,
+          #07152b 50%,
+          #120306 100%
+        );
+
+      position: relative;
+    }
+
+    /* Spider web background */
+    body::before {
+      content: "";
+
+      position: absolute;
+
+      width: 900px;
+      height: 900px;
+
+      top: -430px;
+      right: -350px;
+
+      border-radius: 50%;
+
+      background:
+        repeating-radial-gradient(
+          circle,
+          transparent 0 48px,
+          rgba(255, 255, 255, 0.08) 49px 51px
+        );
+
+      transform: rotate(18deg);
+
+      pointer-events: none;
+    }
+
+    /* Second web */
+    body::after {
+      content: "";
+
+      position: absolute;
+
+      width: 750px;
+      height: 750px;
+
+      bottom: -430px;
+      left: -350px;
+
+      border-radius: 50%;
+
+      background:
+        repeating-radial-gradient(
+          circle,
+          transparent 0 45px,
+          rgba(229, 9, 20, 0.09) 46px 48px
+        );
+
+      transform: rotate(-15deg);
+
+      pointer-events: none;
+    }
+
+    .container {
+      width: min(850px, 100%);
+
+      text-align: center;
+
+      position: relative;
+
+      z-index: 2;
+    }
+
+    /* Spider-Man logo style circle */
+    .logo {
+      width: 110px;
+      height: 110px;
+
+      margin: 0 auto 20px;
+
+      border-radius: 50%;
+
+      background:
+        radial-gradient(
+          circle at 35% 30%,
+          #ff3945,
+          var(--red) 55%,
+          #8c0000
+        );
+
+      border: 4px solid #ffffff;
+
+      box-shadow:
+        0 0 0 5px var(--red),
+        0 0 35px rgba(229, 9, 20, 0.65);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      position: relative;
+    }
+
+    .logo::before {
+      content: "🕷";
+
+      font-size: 48px;
+
+      filter:
+        grayscale(1)
+        brightness(0);
+    }
+
+    .tag {
+      display: inline-block;
+
+      padding: 7px 15px;
+
+      border-radius: 999px;
+
+      background: rgba(229, 9, 20, 0.12);
+
+      border: 1px solid rgba(229, 9, 20, 0.55);
+
+      color: #ff5962;
+
+      font-size: 12px;
+
+      font-weight: 800;
+
+      letter-spacing: 3px;
+
+      text-transform: uppercase;
+
+      margin-bottom: 15px;
+    }
+
+    .error {
+      font-size: clamp(7rem, 22vw, 13rem);
+
+      line-height: 0.85;
+
+      font-weight: 1000;
+
+      letter-spacing: -10px;
+
+      color: #ffffff;
+
+      text-shadow:
+        6px 6px 0 var(--red),
+        12px 12px 0 #07152b,
+        0 0 35px rgba(229, 9, 20, 0.35);
+
+      margin-bottom: 20px;
+
+      animation: swing 3s ease-in-out infinite;
+    }
+
+    @keyframes swing {
+      0%,
+      100% {
+        transform: rotate(-1deg);
+      }
+
+      50% {
+        transform: rotate(1deg);
+      }
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 5vw, 3.2rem);
+
+      text-transform: uppercase;
+
+      letter-spacing: 2px;
+
+      margin-bottom: 12px;
+
+      text-shadow:
+        3px 3px 0 #000000;
+    }
+
+    .message {
+      max-width: 580px;
+
+      margin: 0 auto;
+
+      color: var(--gray);
+
+      font-size: 1.05rem;
+
+      line-height: 1.7;
+    }
+
+    .web-line {
+      width: 120px;
+      height: 3px;
+
+      margin: 25px auto;
+
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          var(--red),
+          #ffffff,
+          var(--red),
+          transparent
+        );
+
+      box-shadow:
+        0 0 12px rgba(229, 9, 20, 0.7);
+    }
+
+    .buttons {
+      display: flex;
+
+      justify-content: center;
+
+      gap: 12px;
+
+      flex-wrap: wrap;
+
+      margin-top: 28px;
+    }
+
+    .btn {
+      display: inline-block;
+
+      padding: 14px 24px;
+
+      min-width: 150px;
+
+      border-radius: 8px;
+
+      text-decoration: none;
+
+      text-transform: uppercase;
+
+      font-size: 0.85rem;
+
+      font-weight: 800;
+
+      letter-spacing: 1px;
+
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+    }
+
+    .btn-secondary {
+      color: #ffffff;
+
+      background: rgba(255, 255, 255, 0.04);
+
+      border: 1px solid #2563eb;
+
+      box-shadow:
+        0 8px 25px rgba(37, 99, 235, 0.15);
+    }
+
+    .btn:hover {
+      transform: translateY(-4px);
+    }
+
+    .btn-secondary:hover {
+      background: #2563eb;
+
+      box-shadow:
+        0 12px 35px rgba(37, 99, 235, 0.45);
+    }
+
+    .quote {
+      margin-top: 30px;
+
+      color: #667386;
+
+      font-size: 0.85rem;
+
+      font-style: italic;
+    }
+
+    .quote span {
+      color: #e50914;
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 20px;
+      }
+
+      .logo {
+        width: 85px;
+        height: 85px;
+      }
+
+      .logo::before {
+        font-size: 36px;
+      }
+
+      .error {
+        letter-spacing: -5px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .message {
+        font-size: 0.95rem;
+      }
+
+      .buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .btn {
+        width: min(300px, 100%);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="container">
+
+    <div class="logo"></div>
+
+    <div class="tag">Spider-Verse Error</div>
+
+    <div class="error">404</div>
+
+    <h1>Page Not Found</h1>
+
+    <div class="web-line"></div>
+
+    <p class="message">
+      Looks like this page got caught in another dimension.
+      The page you're looking for doesn't exist, was moved,
+      or disappeared into the Spider-Verse.
+    </p>
+
+    <div class="buttons">
+
+      <a href="javascript:history.back()" class="btn btn-secondary">
+        ← Go Back
+      </a>
+
+    </div>
+
+    <p class="quote">
+      "With great power comes great responsibility."
+      <span>— Abubakr</span>
+    </p>
+
+  </main>
+
+</body>
+</html>

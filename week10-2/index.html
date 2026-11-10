@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book search</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --red: #e50914;
+            --dark-red: #9b0000;
+            --blue: #0b1f3a;
+            --dark: #05070d;
+            --white: #ffffff;
+            --gray: #b8c1cc;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--white);
+
+            background:
+                radial-gradient(circle at 50% 40%, rgba(229, 9, 20, 0.18), transparent 35%),
+                linear-gradient(135deg, #05070d 0%, #0b1f3a 50%, #120609 100%);
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 30px 18px;
+
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Spider web background */
+        body::before {
+            content: "";
+            position: absolute;
+            width: 900px;
+            height: 900px;
+
+            background:
+                repeating-radial-gradient(circle,
+                    transparent 0 55px,
+                    rgba(255, 255, 255, 0.07) 56px 58px);
+
+            border-radius: 50%;
+
+            top: -350px;
+            right: -300px;
+
+            transform: rotate(20deg);
+
+            pointer-events: none;
+        }
+
+        body::after {
+            content: "";
+            position: absolute;
+            width: 700px;
+            height: 700px;
+
+            background:
+                repeating-radial-gradient(circle,
+                    transparent 0 45px,
+                    rgba(229, 9, 20, 0.08) 46px 48px);
+
+            border-radius: 50%;
+
+            bottom: -350px;
+            left: -300px;
+
+            pointer-events: none;
+        }
+
+        .card {
+            width: min(780px, 100%);
+
+            background:
+                linear-gradient(145deg,
+                    rgba(8, 12, 20, 0.97),
+                    rgba(15, 25, 45, 0.97));
+
+            border: 2px solid rgba(229, 9, 20, 0.7);
+
+            border-radius: 20px;
+
+            box-shadow:
+                0 0 25px rgba(229, 9, 20, 0.25),
+                0 25px 70px rgba(0, 0, 0, 0.65);
+
+            overflow: hidden;
+
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Red comic line */
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+
+            background: linear-gradient(90deg,
+                    #e50914,
+                    #ff3340,
+                    #1e5eff,
+                    #e50914);
+        }
+
+        .header {
+            padding: 42px 36px 36px;
+
+            background:
+                linear-gradient(135deg,
+                    rgba(229, 9, 20, 0.95),
+                    rgba(120, 0, 0, 0.9) 55%,
+                    rgba(5, 10, 25, 0.95));
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+        /* Spider web effect inside header */
+        .header::after {
+            content: "";
+            position: absolute;
+
+            width: 380px;
+            height: 380px;
+
+            right: -140px;
+            top: -190px;
+
+            border-radius: 50%;
+
+            background:
+                repeating-radial-gradient(circle,
+                    transparent 0 35px,
+                    rgba(255, 255, 255, 0.12) 36px 38px);
+
+            opacity: 0.8;
+        }
+
+        .tag {
+            display: inline-block;
+
+            background: #05070d;
+            color: #ffffff;
+
+            border: 1px solid rgba(255, 255, 255, 0.35);
+
+            padding: 7px 14px;
+
+            border-radius: 999px;
+
+            font-size: 12px;
+            font-weight: bold;
+
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+
+            margin-bottom: 16px;
+
+            position: relative;
+            z-index: 2;
+        }
+
+        h1 {
+            font-size: clamp(2.2rem, 6vw, 4rem);
+
+            font-weight: 900;
+
+            text-transform: uppercase;
+
+            letter-spacing: 2px;
+
+            color: #ffffff;
+
+            text-shadow:
+                3px 3px 0 #05070d,
+                0 0 15px rgba(255, 255, 255, 0.2);
+
+            position: relative;
+            z-index: 2;
+        }
+
+        .content {
+            padding: 34px 36px 40px;
+        }
+
+        p {
+            color: var(--gray);
+
+            line-height: 1.7;
+
+            font-size: 1rem;
+
+            margin-bottom: 18px;
+        }
+
+        .repo-box {
+            margin-top: 25px;
+
+            padding: 25px;
+
+            background:
+                linear-gradient(145deg,
+                    rgba(255, 255, 255, 0.05),
+                    rgba(255, 255, 255, 0.02));
+
+            border: 1px solid rgba(255, 255, 255, 0.12);
+
+            border-left: 5px solid var(--red);
+
+            border-radius: 14px;
+
+            box-shadow:
+                inset 0 0 25px rgba(229, 9, 20, 0.05);
+        }
+
+        .repo-box h2 {
+            color: #ffffff;
+
+            font-size: 1.3rem;
+
+            margin-bottom: 10px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
+        }
+
+        .repo-box p {
+            margin-bottom: 5px;
+        }
+
+        .repo-link,
+        .live-link {
+            display: inline-block;
+
+            padding: 13px 20px;
+
+            border-radius: 8px;
+
+            text-decoration: none;
+
+            font-weight: bold;
+
+            text-transform: uppercase;
+
+            font-size: 0.85rem;
+
+            letter-spacing: 0.5px;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                background 0.2s ease;
+        }
+
+        .repo-link {
+            margin-top: 15px;
+
+            background: linear-gradient(135deg,
+                    #e50914,
+                    #a90000);
+
+            color: white;
+
+            border: 1px solid #ff4d55;
+
+            box-shadow:
+                0 5px 15px rgba(229, 9, 20, 0.25);
+        }
+
+        .live-link {
+            margin: 15px 0 0 8px;
+
+            background: transparent;
+
+            color: #ffffff;
+
+            border: 1px solid #1e5eff;
+
+            box-shadow:
+                0 5px 15px rgba(30, 94, 255, 0.15);
+        }
+
+        .repo-link:hover {
+            transform: translateY(-3px);
+
+            background: linear-gradient(135deg,
+                    #ff1e2d,
+                    #c40000);
+
+            box-shadow:
+                0 8px 25px rgba(229, 9, 20, 0.5);
+        }
+
+        .live-link:hover {
+            transform: translateY(-3px);
+
+            background: #1e5eff;
+
+            box-shadow:
+                0 8px 25px rgba(30, 94, 255, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                padding: 32px 24px;
+            }
+
+            .content {
+                padding: 28px 24px 32px;
+            }
+
+            .repo-box {
+                padding: 20px;
+            }
+
+            .repo-link,
+            .live-link {
+                width: 100%;
+                text-align: center;
+                margin-left: 0;
+            }
+
+            .live-link {
+                margin-top: 10px;
+            }
+
+            h1 {
+                font-size: 2.3rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="card">
+
+        <header class="header">
+            <div class="tag">Week 10-2</div>
+
+            <h1>Book search</h1>
+        </header>
+
+        <section class="content">
+
+            <p>
+                This assignment demonstrates a Book Search application using the Open Library API. Users can search for
+                books by title or author and explore book covers and details.
+            </p>
+
+            <div class="repo-box">
+
+                <h2>Repository</h2>
+
+                <p>
+                    GitHub: mrabubakrkamolov/webpro-book-search
+                </p>
+
+                <a class="repo-link" href="https://github.com/mrabubakrkamolov/webpro-book-search" target="_blank"
+                    rel="noreferrer">
+                    Open Repository GitHub
+                </a>
+
+                <a class="live-link" href="https://mrabubakrkamolov.github.io/webpro-book-search/" target="_blank"
+                    rel="noreferrer">
+                    Open Live Page
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>
