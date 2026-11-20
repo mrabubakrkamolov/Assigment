@@ -1,18 +1,19 @@
-# Week 11-2 — Portfolio Gallery (React Props)
+# Week 11-2 — React State & Events
 
-Homework for **Web Programming · Week 11 (React Components & Props)**.
+Homework for **Web Programming · Week 11-2 (React State & Events)**.
+Reference style: <https://xushnudbek76.github.io/week2/week11/dist/week11_2.html>
 
-## What is implemented
+## Exercises
 
-| Homework requirement | Where it lives |
-| --- | --- |
-| `ProjectCard` with `title`, `description`, tech stack, GitHub link and demo link | `src/App.js` → `ProjectCard` |
-| `ProjectList` rendering an array of 3+ cards with unique `key` props | `src/App.js` → `ProjectList` |
-| `FilterBar` that filters cards by technology | `src/App.js` → `FilterBar` |
-| One-way props + callback prop for the active filter | `App` passes props down to all children |
-| Conditional rendering and empty state | `ProjectList` and `ProjectCard` (`demo && ...`) |
-
-Four projects are included: Portfolio Gallery, React Shopping Cart, Book Search and Counter-Strike 2 Landing.
+| Exercise | What it demonstrates | Component in `src/App.js` |
+| --- | --- | --- |
+| E1 | Counter with functional state updates | `CounterExercise` |
+| E2 | Controlled input with live preview | `ControlledInputExercise` |
+| E3 | Immutable array add/remove + form submit | `TaskListExercise` |
+| E4 | Boolean state, conditional rendering, `aria-expanded` | `ToggleExercise` |
+| E5 | Object updates, checkbox events, status filtering | `TodoFilterExercise` |
+| E6 | One state object for several controlled fields + validation | `ProfileFormExercise` |
+| E7 | `useEffect` + `localStorage` persistence | `NoteExercise` |
 
 ## Run locally
 
@@ -23,18 +24,18 @@ npm start
 
 Open http://localhost:3000.
 
+## Test
+
+```bash
+npm test -- --watchAll=false
+```
+
 ## Build
 
 ```bash
 npm run build
 ```
 
-The generated `index.html` and `static/` files are committed in this folder so the app works on GitHub Pages from a subdirectory:
+The production files are committed in this folder so GitHub Pages serves the app from a subdirectory:
 
 `https://mrabubakrkamolov.github.io/Assigment/week11-2/`
-
-## Tests
-
-```bash
-npm test -- --watchAll=false
-```
