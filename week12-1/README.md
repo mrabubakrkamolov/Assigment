@@ -1,7 +1,7 @@
 # Week 12-1 — React State & useState
 
 Additional tasks for Week 12 (Monday). The shopping cart is a separate project and is
-already deployed from its own repository.
+already deployed from its own repository (linked from the main Assignment index).
 
 | File | Topic |
 | --- | --- |
@@ -13,7 +13,6 @@ already deployed from its own repository.
 | `05-todo-list.html` | Array: add / remove / toggle |
 | `06-search-page.html` | Lifting state up |
 | `07-counter-history.html` | Code challenge: history + Undo |
-| `quizzes.html` | 7 quizzes with answers |
 
 All pages use React UMD + Babel standalone and work directly from GitHub Pages:
 
