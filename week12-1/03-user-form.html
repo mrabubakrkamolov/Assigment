@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>03 · User Form | Week 12-1</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function Shell({ num, title, subtitle, children }) {
+            return (
+                <div className="page">
+                    <div className="topbar">
+                        <a href="./index.html">← Week 12-1</a>
+                        <span className="badge">{num}</span>
+                    </div>
+                    <div className="card">
+                        <h1>{title}</h1>
+                        <p className="subtitle">{subtitle}</p>
+                        {children}
+                    </div>
+                </div>
+            );
+        }
+
+        function Demo() {
+            const [name, setName] = useState("");
+            const [email, setEmail] = useState("");
+            const [age, setAge] = useState(0);
+            const [subscribed, setSubscribed] = useState(false);
+            const [submitted, setSubmitted] = useState(false);
+
+            function handleSubmit(event) {
+                event.preventDefault();
+                setSubmitted(true);
+            }
+
+            if (submitted) {
+                return (
+                    <Shell
+                        num="03 · User Form"
+                        title="Submitted"
+                        subtitle="Each field is stored in its own state variable."
+                    >
+                        <div className="output">
+                            <p>Thanks, <strong>{name}</strong>!</p>
+                            <p>Email: <strong>{email}</strong></p>
+                            <p>Age: <strong>{age}</strong></p>
+                            <p>Subscribed: <strong>{subscribed ? "Yes" : "No"}</strong></p>
+                        </div>
+                        <div className="button-row">
+                            <button onClick={() => setSubmitted(false)}>← Edit</button>
+                        </div>
+                    </Shell>
+                );
+            }
+
+            return (
+                <Shell
+                    num="03 · User Form"
+                    title="Multiple useState calls"
+                    subtitle="A separate `useState` call per independent value is the clearest approach."
+                >
+                    <form onSubmit={handleSubmit}>
+                        <div className="field">
+                            <label>Name</label>
+                            <input value={name} onChange={e => setName(e.target.value)} placeholder="Kim Minho" />
+                        </div>
+                        <div className="field">
+                            <label>Email</label>
+                            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="kim@uni.kr" />
+                        </div>
+                        <div className="field">
+                            <label>Age</label>
+                            <input type="number" value={age} onChange={e => setAge(Number(e.target.value))} />
+                        </div>
+                        <div className="field">
+                            <label className="checkbox-line">
+                                <input
+                                    type="checkbox"
+                                    style={{ width: "auto", marginRight: 8 }}
+                                    checked={subscribed}
+                                    onChange={e => setSubscribed(e.target.checked)}
+                                />
+                                Subscribe to newsletter
+                            </label>
+                        </div>
+                        <button className="primary" type="submit">Submit</button>
+                    </form>
+                </Shell>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>07 · Counter with History | Week 12-1</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef } = React;
+
+        function Shell({ num, title, subtitle, children }) {
+            return (
+                <div className="page">
+                    <div className="topbar">
+                        <a href="./index.html">← Week 12-1</a>
+                        <span className="badge">{num}</span>
+                    </div>
+                    <div className="card">
+                        <h1>{title}</h1>
+                        <p className="subtitle">{subtitle}</p>
+                        {children}
+                    </div>
+                </div>
+            );
+        }
+
+        function Demo() {
+            const [count, setCount] = useState(0);
+            const [history, setHistory] = useState([0]);
+            const countRef = useRef(0);
+
+            function change(delta) {
+                const next = countRef.current + delta;
+                countRef.current = next;
+                setCount(next);
+                setHistory(prev => [...prev, next].slice(-5));
+            }
+
+            function reset() {
+                countRef.current = 0;
+                setCount(0);
+                setHistory(prev => [...prev, 0].slice(-5));
+            }
+
+            function undo() {
+                if (history.length < 2) return;
+                const previous = history[history.length - 2];
+                countRef.current = previous;
+                setCount(previous);
+                setHistory(prev => prev.slice(0, -1));
+            }
+
+            return (
+                <Shell
+                    num="07 · Code Challenge"
+                    title="Counter with History"
+                    subtitle="Two state variables: `count` and `history`. Every change is appended to history (last 5), and Undo removes the latest entry and restores the previous value."
+                >
+                    <div className="output">
+                        <div className="counter-value">{count}</div>
+                    </div>
+
+                    <div className="button-row">
+                        <button className="primary" onClick={() => change(1)}>+1</button>
+                        <button onClick={() => change(-1)}>-1</button>
+                        <button onClick={reset}>Reset</button>
+                        <button className="blue" onClick={undo} disabled={history.length < 2}>Undo</button>
+                    </div>
+
+                    <h2>History (last 5)</h2>
+                    <div className="output mono">[{history.join(", ")}]</div>
+
+                    <p className="hint">Undo works only when history has at least two values.</p>
+                </Shell>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+    </script>
+</body>
+
+</html>

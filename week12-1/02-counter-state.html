@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>02 · Counter State | Week 12-1</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function Shell({ num, title, subtitle, children }) {
+            return (
+                <div className="page">
+                    <div className="topbar">
+                        <a href="./index.html">← Week 12-1</a>
+                        <span className="badge">{num}</span>
+                    </div>
+                    <div className="card">
+                        <h1>{title}</h1>
+                        <p className="subtitle">{subtitle}</p>
+                        {children}
+                    </div>
+                </div>
+            );
+        }
+
+        function Demo() {
+            const [stale, setStale] = useState(0);
+            const [safe, setSafe] = useState(0);
+
+            function tripleStale() {
+                setStale(stale + 1);
+                setStale(stale + 1);
+                setStale(stale + 1);
+            }
+
+            function tripleSafe() {
+                setSafe(prev => prev + 1);
+                setSafe(prev => prev + 1);
+                setSafe(prev => prev + 1);
+            }
+
+            return (
+                <Shell
+                    num="02 · Counter State"
+                    title="useState & functional updates"
+                    subtitle="`setCount(prev => prev + 1)` always reads the latest value. `setCount(count + 1)` uses a stale value inside one render."
+                >
+                    <div className="grid">
+                        <div className="output">
+                            <div className="badge">count + 1 (stale)</div>
+                            <div className="counter-value">{stale}</div>
+                            <button onClick={tripleStale}>Call setStale(stale + 1) 3×</button>
+                        </div>
+
+                        <div className="output">
+                            <div className="badge">prev =&gt; prev + 1 (safe)</div>
+                            <div className="counter-value ok">{safe}</div>
+                            <button className="blue" onClick={tripleSafe}>Call setSafe(prev =&gt; prev + 1) 3×</button>
+                        </div>
+                    </div>
+
+                    <div className="button-row">
+                        <button onClick={() => setSafe(0)}>Reset safe</button>
+                        <button onClick={() => setStale(0)}>Reset stale</button>
+                    </div>
+
+                    <p className="hint">
+                        When called three times in one handler, the left side shows <strong>1</strong> and the right side shows <strong>3</strong>.
+                    </p>
+                </Shell>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+    </script>
+</body>
+
+</html>

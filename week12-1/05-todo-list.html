@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>05 · Todo List | Week 12-1</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function Shell({ num, title, subtitle, children }) {
+            return (
+                <div className="page">
+                    <div className="topbar">
+                        <a href="./index.html">← Week 12-1</a>
+                        <span className="badge">{num}</span>
+                    </div>
+                    <div className="card">
+                        <h1>{title}</h1>
+                        <p className="subtitle">{subtitle}</p>
+                        {children}
+                    </div>
+                </div>
+            );
+        }
+
+        function Demo() {
+            const [todos, setTodos] = useState([
+                { id: 1, text: "Read the React lesson", done: true },
+                { id: 2, text: "Practice useState", done: false },
+                { id: 3, text: "Build the challenge", done: false }
+            ]);
+            const [input, setInput] = useState("");
+
+            function addTodo(event) {
+                event.preventDefault();
+                const text = input.trim();
+                if (!text) return;
+                setTodos(prev => [...prev, { id: Date.now(), text, done: false }]);
+                setInput("");
+            }
+
+            function removeTodo(id) {
+                setTodos(prev => prev.filter(todo => todo.id !== id));
+            }
+
+            function toggleTodo(id) {
+                setTodos(prev => prev.map(todo =>
+                    todo.id === id ? { ...todo, done: !todo.done } : todo
+                ));
+            }
+
+            return (
+                <Shell
+                    num="05 · Todo List"
+                    title="State with arrays"
+                    subtitle="Add = spread, Remove = filter, Toggle = map. Never mutate state with `push` or `splice`."
+                >
+                    <form onSubmit={addTodo}>
+                        <label>New todo</label>
+                        <div className="button-row" style={{ marginTop: 0 }}>
+                            <input value={input} onChange={e => setInput(e.target.value)} placeholder="New task..." />
+                            <button className="primary" type="submit">Add</button>
+                        </div>
+                    </form>
+
+                    <ul className="list">
+                        {todos.map(todo => (
+                            <li key={todo.id}>
+                                <label style={{ margin: 0, display: "flex", alignItems: "center", gap: 10 }}>
+                                    <input
+                                        type="checkbox"
+                                        style={{ width: "auto" }}
+                                        checked={todo.done}
+                                        onChange={() => toggleTodo(todo.id)}
+                                    />
+                                    <span className={todo.done ? "done" : ""}>{todo.text}</span>
+                                </label>
+                                <button className="ghost" onClick={() => removeTodo(todo.id)}>Remove</button>
+                            </li>
+                        ))}
+                    </ul>
+
+                    <p className="hint">Total: <strong>{todos.length}</strong> · Completed: <strong>{todos.filter(t => t.done).length}</strong></p>
+                </Shell>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+    </script>
+</body>
+
+</html>

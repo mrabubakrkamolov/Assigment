@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>01 · Counter Bug | Week 12-1</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function Shell({ num, title, subtitle, children }) {
+            return (
+                <div className="page">
+                    <div className="topbar">
+                        <a href="./index.html">← Week 12-1</a>
+                        <span className="badge">{num}</span>
+                    </div>
+                    <div className="card">
+                        <h1>{title}</h1>
+                        <p className="subtitle">{subtitle}</p>
+                        {children}
+                    </div>
+                </div>
+            );
+        }
+
+        function Demo() {
+            let count = 0;
+            const [handlerRuns, setHandlerRuns] = useState(0);
+
+            function handleClick() {
+                count++;
+                setHandlerRuns(n => n + 1);
+                console.log("count =", count);
+            }
+
+            return (
+                <Shell
+                    num="01 · Counter Bug"
+                    title="The problem without state"
+                    subtitle="A plain `let` variable is recreated on every render. React cannot observe its changes, so the UI never updates."
+                >
+                    <div className="output counter-value">0</div>
+
+                    <div className="button-row">
+                        <button className="primary" onClick={handleClick}>+1</button>
+                    </div>
+
+                    <p className="hint">
+                        Handler ran: <strong>{handlerRuns}</strong> times.
+                        In the console, <span className="mono">count</span> keeps increasing, but the screen still shows <strong>0</strong>.
+                    </p>
+                    <p className="note">
+                        Takeaway: React only re-renders when state changes. A plain variable is not enough.
+                    </p>
+                </Shell>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+    </script>
+</body>
+
+</html>

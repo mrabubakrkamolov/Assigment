@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quizzes · Week 12-1</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const quizzes = [
+            {
+                q: "1. What is the most accurate difference between state and props?",
+                options: [
+                    "Props are mutable by the child; state is immutable and passed down",
+                    "State comes from the parent; props are the component's private memory",
+                    "Props are read-only inputs from a parent; state is component-owned data whose setter schedules a re-render",
+                    "A local variable declared with let persists across renders like state",
+                    "State can only hold numbers and strings"
+                ],
+                answer: 2,
+                explain: "Ownership is the decisive criterion: props come from a parent and cannot be changed; the owning component changes state through its setter."
+            },
+            {
+                q: "2. What does useState(0) return?",
+                options: ["The number 0", "An object { value, setValue }", "An array [currentValue, setterFunction]", "Only a setter function", "A Promise"],
+                answer: 2,
+                explain: "React returns an array. The first element is the current value, the second is the updater function. Names are up to you."
+            },
+            {
+                q: "3. Which of the following violates the Rules of Hooks?",
+                options: [
+                    "const [n, setN] = useState(0); // top of component",
+                    "if (open) { const [t, setT] = useState(''); }",
+                    "function useCounter() { useState(0); }",
+                    "Two useState calls, one after the other, at the top",
+                    "An arrow-function component calling useState at its top"
+                ],
+                answer: 1,
+                explain: "Hooks must not be called inside conditions or loops. React tracks them by call order."
+            },
+            {
+                q: "4. With count = 0, setCount(count + 1) runs three times in a row. What is the result?",
+                options: ["0", "1", "2", "3", "It depends on timing"],
+                answer: 1,
+                explain: "Within one render, count is a constant 0. All three calls enqueue 1, React batches them, so the final state is 1."
+            },
+            {
+                q: "5. A form has name, email and subscribed. Which state design is best?",
+                options: [
+                    "Three separate useState calls, one per field",
+                    "One useState holding all fields, always, for performance",
+                    "A module-level variable shared by the component",
+                    "useState called inside a loop over the field names",
+                    "Props, because the user can edit them by typing"
+                ],
+                answer: 0,
+                explain: "Independent values with independent update logic are clearest as separate useState calls. The number of hooks has no meaningful performance cost."
+            },
+            {
+                q: "6. Which statement adds x to the todos array state without mutating it?",
+                options: [
+                    "todos.push(x); setTodos(todos);",
+                    "setTodos(todos.push(x));",
+                    "setTodos(prev => [...prev, x]);",
+                    "todos.unshift(x); setTodos(todos);",
+                    "setTodos(prev => { prev.push(x); return prev; });"
+                ],
+                answer: 2,
+                explain: "Spread creates a new array. A new reference tells React that something changed and triggers a re-render."
+            },
+            {
+                q: "7. Sibling components A and B must display and edit the same value. What is the idiomatic React design?",
+                options: [
+                    "Keep a copy in each sibling and synchronise them manually",
+                    "Lift the state to the nearest common parent; pass the value down as props and the setter as a callback",
+                    "Let A call B's internal state setter directly",
+                    "Store the value in a global mutable variable",
+                    "Pass the value as a prop and let A modify its own props"
+                ],
+                answer: 1,
+                explain: "A single owner holds the state. Data flows down through props and events flow up through callbacks."
+            }
+        ];
+
+        function Shell({ children }) {
+            return (
+                <div className="page">
+                    <div className="topbar">
+                        <a href="./index.html">← Week 12-1</a>
+                        <span className="badge">Quizzes · 7</span>
+                    </div>
+                    <div className="card">
+                        <h1>Week 12 Quizzes</h1>
+                        <p className="subtitle">7 questions. Pick an answer to see immediate feedback and a short explanation.</p>
+                        {children}
+                    </div>
+                </div>
+            );
+        }
+
+        function Quiz({ item }) {
+            const [selected, setSelected] = useState(null);
+
+            return (
+                <div className="quiz">
+                    <question>{item.q}</question>
+                    {item.options.map((option, i) => {
+                        let cls = "option";
+                        if (selected !== null) {
+                            if (i === item.answer) cls += " correct";
+                            else if (i === selected) cls += " wrong";
+                        }
+                        return (
+                            <button key={i} className={cls} onClick={() => setSelected(i)}>
+                                {String.fromCharCode(65 + i)}. {option}
+                            </button>
+                        );
+                    })}
+                    {selected !== null && (
+                        <p className="explain">
+                            <strong className={selected === item.answer ? "ok" : "warn"}>
+                                {selected === item.answer
+                                    ? "Correct!"
+                                    : `Incorrect. The correct answer is ${String.fromCharCode(65 + item.answer)}`}
+                            </strong>
+                            <br />{item.explain}
+                        </p>
+                    )}
+                </div>
+            );
+        }
+
+        function Demo() {
+            return (
+                <Shell>
+                    {quizzes.map((item, i) => <Quiz key={i} item={item} />)}
+                </Shell>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+    </script>
+</body>
+
+</html>

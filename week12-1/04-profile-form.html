@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>04 · Profile Form | Week 12-1</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function Shell({ num, title, subtitle, children }) {
+            return (
+                <div className="page">
+                    <div className="topbar">
+                        <a href="./index.html">← Week 12-1</a>
+                        <span className="badge">{num}</span>
+                    </div>
+                    <div className="card">
+                        <h1>{title}</h1>
+                        <p className="subtitle">{subtitle}</p>
+                        {children}
+                    </div>
+                </div>
+            );
+        }
+
+        function Demo() {
+            const [user, setUser] = useState({ name: "", email: "", bio: "" });
+
+            function handleChange(field, value) {
+                setUser(prev => ({ ...prev, [field]: value }));
+            }
+
+            return (
+                <Shell
+                    num="04 · Profile Form"
+                    title="State with objects"
+                    subtitle="Never mutate object state directly. Create a new object with `spread`."
+                >
+                    <div className="grid">
+                        <form onSubmit={e => e.preventDefault()}>
+                            <div className="field">
+                                <label>Name</label>
+                                <input value={user.name} onChange={e => handleChange("name", e.target.value)} />
+                            </div>
+                            <div className="field">
+                                <label>Email</label>
+                                <input type="email" value={user.email} onChange={e => handleChange("email", e.target.value)} />
+                            </div>
+                            <div className="field">
+                                <label>Bio</label>
+                                <textarea rows="4" value={user.bio} onChange={e => handleChange("bio", e.target.value)} />
+                            </div>
+                        </form>
+
+                        <div>
+                            <h2>Live state</h2>
+                            <div className="output mono">{JSON.stringify(user, null, 2)}</div>
+                            <p className="hint ok">A new object is created, so React re-renders.</p>
+                        </div>
+                    </div>
+                </Shell>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+    </script>
+</body>
+
+</html>
