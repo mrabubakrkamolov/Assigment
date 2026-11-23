@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Week 12_2 — React Effects | Abubakr</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function Code({ children }) {
+            return (
+                <details className="code-disclosure">
+                    <summary>View code</summary>
+                    <pre><code>{children}</code></pre>
+                </details>
+            );
+        }
+
+        function DemoCard({ num, title, children, code, exercise }) {
+            return (
+                <article className="demo-card">
+                    {exercise && <span className="exercise-num">{exercise}</span>}
+                    <span className="num">{num}</span>
+                    <h3>{title}</h3>
+                    {children}
+                    <Code>{code}</Code>
+                </article>
+            );
+        }
+
+        /* ---------- SAMPLES ---------- */
+
+        function RunOnce() {
+            const [runs, setRuns] = useState(0);
+            const [rerenders, setRerenders] = useState(0);
+
+            useEffect(() => {
+                setRuns(value => value + 1);
+            }, []);
+
+            return (
+                <DemoCard
+                    num="MOUNT · []"
+                    title="Run once"
+                    code={"useEffect(() => {\n  setRuns(value => value + 1);\n}, []);"}
+                >
+                    <p className="result">{runs} effect run(s) after mount</p>
+                    <button onClick={() => setRerenders(value => value + 1)}>
+                        Re-render: {rerenders}
+                    </button>
+                    <p className="hint">With <code>[]</code>, the effect does not run again.</p>
+                </DemoCard>
+            );
+        }
+
+        function RunOnChange() {
+            const [name, setName] = useState("");
+            const [runs, setRuns] = useState(0);
+
+            useEffect(() => {
+                setRuns(value => value + 1);
+            }, [name]);
+
+            return (
+                <DemoCard
+                    num="CHANGE · [name]"
+                    title="Run on a change"
+                    code={"useEffect(() => {\n  setRuns(value => value + 1);\n}, [name]);"}
+                >
+                    <label htmlFor="sample-name">Name</label>
+                    <input
+                        id="sample-name"
+                        value={name}
+                        onChange={event => setName(event.target.value)}
+                        placeholder="Type a name"
+                    />
+                    <p className="result">{runs} effect run(s)</p>
+                    <p className="hint">With <code>[name]</code>, it runs only when name changes.</p>
+                </DemoCard>
+            );
+        }
+
+        function LiveClock({ setTicks }) {
+            const [time, setTime] = useState(() => new Date().toLocaleTimeString());
+
+            useEffect(() => {
+                const id = setInterval(() => {
+                    setTime(new Date().toLocaleTimeString());
+                    setTicks(value => value + 1);
+                }, 1000);
+                return () => clearInterval(id);
+            }, [setTicks]);
+
+            return <p className="clock mono">{time}</p>;
+        }
+
+        function StopResources() {
+            const [show, setShow] = useState(true);
+            const [ticks, setTicks] = useState(0);
+
+            return (
+                <DemoCard
+                    num="CLEANUP · TIMER"
+                    title="Stop resources"
+                    code={"useEffect(() => {\n  const id = setInterval(tick, 1000);\n  return () => clearInterval(id);\n}, []);"}
+                >
+                    {show && <LiveClock setTicks={setTicks} />}
+                    <button onClick={() => setShow(value => !value)}>
+                        {show ? "Remove clock" : "Add clock"}
+                    </button>
+                    <p className="hint">
+                        Cleanup clears the interval on unmount. Ticks: <strong>{ticks}</strong>.
+                    </p>
+                </DemoCard>
+            );
+        }
+
+        function SyncStorage() {
+            const [theme, setTheme] = useState(() => {
+                try { return localStorage.getItem("week12-2-theme") || "light"; }
+                catch (error) { return "light"; }
+            });
+
+            useEffect(() => {
+                try { localStorage.setItem("week12-2-theme", theme); }
+                catch (error) { /* storage may be unavailable */ }
+            }, [theme]);
+
+            return (
+                <DemoCard
+                    num="LOCAL STORAGE"
+                    title="Sync browser storage"
+                    code={"useEffect(() => {\n  localStorage.setItem('theme', theme);\n}, [theme]);"}
+                >
+                    <p className="result">Current theme: {theme}</p>
+                    <button className="primary" onClick={() => setTheme(value => value === "light" ? "dark" : "light")}>
+                        Toggle theme
+                    </button>
+                    <p className="hint">Reload to restore this value from localStorage.</p>
+                </DemoCard>
+            );
+        }
+
+        /* ---------- EXERCISES ---------- */
+
+        function TitleSync() {
+            const [count, setCount] = useState(3);
+
+            useEffect(() => {
+                document.title = `Inbox (${count}) · Week 12_2`;
+            }, [count]);
+
+            return (
+                <DemoCard
+                    num="WEEK 12_2 · FRIDAY"
+                    title="Sync the document title"
+                    exercise="E1"
+                    code={"useEffect(() => {\n  document.title = `Inbox (${count})`;\n}, [count]);"}
+                >
+                    <p className="result">{count} unread messages</p>
+                    <div className="button-row">
+                        <button onClick={() => setCount(value => value + 1)}>Add</button>
+                        <button onClick={() => setCount(value => Math.max(0, value - 1))}>Read one</button>
+                    </div>
+                    <p className="hint">The browser tab title updates with the count.</p>
+                </DemoCard>
+            );
+        }
+
+        function GitHubLookup() {
+            const [username, setUsername] = useState("");
+            const [submittedName, setSubmittedName] = useState("octocat");
+            const [user, setUser] = useState(null);
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState("");
+
+            useEffect(() => {
+                const name = submittedName.trim();
+                if (!name) {
+                    setUser(null);
+                    setLoading(false);
+                    setError("");
+                    return;
+                }
+
+                const controller = new AbortController();
+                let active = true;
+                setLoading(true);
+                setError("");
+                setUser(null);
+
+                async function loadUser() {
+                    try {
+                        const response = await fetch(
+                            `https://api.github.com/users/${encodeURIComponent(name)}`,
+                            { signal: controller.signal }
+                        );
+
+                        if (response.status === 404) throw new Error("User not found.");
+                        if (response.status === 403 || response.status === 429) {
+                            throw new Error("GitHub rate limit reached. Try again later.");
+                        }
+                        if (!response.ok) throw new Error(`Request failed (${response.status}).`);
+
+                        const data = await response.json();
+                        if (active) setUser(data);
+                    } catch (requestError) {
+                        if (requestError.name === "AbortError") return;
+                        if (active) setError(requestError.message || "Network error.");
+                    } finally {
+                        if (active) setLoading(false);
+                    }
+                }
+
+                loadUser();
+
+                return () => {
+                    active = false;
+                    controller.abort();
+                };
+            }, [submittedName]);
+
+            return (
+                <DemoCard
+                    num="WEEK 12_2 · FRIDAY"
+                    title="Fetch and display a GitHub user"
+                    exercise="E2"
+                    code={"useEffect(() => {\n  const controller = new AbortController();\n  fetch(url, { signal: controller.signal });\n  return () => controller.abort();\n}, [submittedName]);"}
+                >
+                    <form onSubmit={event => {
+                        event.preventDefault();
+                        setSubmittedName(username.trim() || "octocat");
+                    }}>
+                        <label htmlFor="github-user">GitHub username</label>
+                        <div className="button-row" style={{ marginTop: 0 }}>
+                            <input
+                                id="github-user"
+                                value={username}
+                                onChange={event => setUsername(event.target.value)}
+                                placeholder="octocat"
+                            />
+                            <button className="primary" type="submit">Search</button>
+                        </div>
+                    </form>
+
+                    {loading && <p className="state-line">Loading…</p>}
+                    {error && <p className="alert">{error}</p>}
+
+                    {user && (
+                        <div className="user-card">
+                            <img src={user.avatar_url} alt="" />
+                            <div>
+                                <strong>{user.name || user.login}</strong>
+                                <p className="note">{user.bio || "No bio provided."}</p>
+                                <p className="hint">
+                                    {user.followers} followers · {user.public_repos} public repos
+                                </p>
+                                <a href={user.html_url} target="_blank" rel="noreferrer">View profile ↗</a>
+                            </div>
+                        </div>
+                    )}
+
+                    <p className="hint">
+                        An async operation loads inside the effect, with loading, error, and abort cleanup states.
+                    </p>
+                </DemoCard>
+            );
+        }
+
+        function DerivedValue() {
+            const [first, setFirst] = useState("Ada");
+            const [last, setLast] = useState("Lovelace");
+            const fullName = `${first} ${last}`.trim();
+
+            return (
+                <DemoCard
+                    num="WEEK 12_2 · FRIDAY"
+                    title="Do not store a derived value"
+                    exercise="E3"
+                    code={"const [first, setFirst] = useState('Ada');\nconst [last, setLast] = useState('Lovelace');\n\nconst fullName = `${first} ${last}`.trim();"}
+                >
+                    <div className="grid">
+                        <div>
+                            <label htmlFor="first-name">First</label>
+                            <input id="first-name" value={first} onChange={event => setFirst(event.target.value)} />
+                        </div>
+                        <div>
+                            <label htmlFor="last-name">Last</label>
+                            <input id="last-name" value={last} onChange={event => setLast(event.target.value)} />
+                        </div>
+                    </div>
+                    <p className="result">Derived value: {fullName}</p>
+                    <p className="hint">No extra state and no effect are needed.</p>
+                </DemoCard>
+            );
+        }
+
+        const rules = [
+            "Effects run after rendering.",
+            "[] runs once; [value] runs on change.",
+            "Include every component value the effect reads.",
+            "Return cleanup for timers and subscriptions.",
+            "Put async work inside the effect callback."
+        ];
+
+        function App() {
+            return (
+                <div className="page">
+                    <div className="topbar">
+                        <a href="../index.html">← Coursework home</a>
+                        <nav className="nav-links">
+                            <a href="#samples">Samples</a>
+                            <a href="#exercises">Exercises</a>
+                        </nav>
+                        <span className="badge">Week 12_2 · Friday</span>
+                    </div>
+
+                    <div className="card">
+                        <h1>React Effects <span className="title-accent">&amp; useEffect</span></h1>
+                        <p className="subtitle">
+                            Use effects for work outside the render: browser APIs, timers, subscriptions,
+                            and network requests.
+                        </p>
+
+                        <div className="flow" aria-label="Render then paint then effect">
+                            <span><strong>1</strong> Render</span>
+                            <span className="arrow">→</span>
+                            <span><strong>2</strong> Paint</span>
+                            <span className="arrow">→</span>
+                            <span><strong>3</strong> Effect</span>
+                        </div>
+
+                        <h2 className="section-title" id="samples">Samples</h2>
+                        <p className="section-note">See the effect lifecycle.</p>
+                        <p className="note">
+                            Each sample is small enough to connect the code with the behavior.
+                        </p>
+                        <div className="grid">
+                            <RunOnce />
+                            <RunOnChange />
+                            <StopResources />
+                            <SyncStorage />
+                        </div>
+
+                        <h2 className="section-title" id="exercises">Exercises</h2>
+                        <p className="section-note">Practice on a working page.</p>
+                        <p className="note">Try every demo, then inspect and modify the effect code.</p>
+                        <div className="grid">
+                            <TitleSync />
+                            <GitHubLookup />
+                            <DerivedValue />
+                        </div>
+
+                        <h2 className="section-title">Key takeaways</h2>
+                        <p className="section-note">Five rules to remember</p>
+                        <ol className="rules">
+                            {rules.map((rule, index) => (
+                                <li key={rule}><span>{String(index + 1).padStart(2, "0")}</span>{rule}</li>
+                            ))}
+                        </ol>
+
+                        <div className="footer-links">
+                            <a href="../index.html">Coursework home ↑</a>
+                            <a href="../week12-1/index.html">Week 12 · State demos ↗</a>
+                            <a href="https://mrabubakrkamolov.github.io/react-shopping-cart/">Week 12 · Shopping cart ↗</a>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+</body>
+
+</html>
