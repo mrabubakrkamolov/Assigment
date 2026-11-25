@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather Dashboard | Week 12-2</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const GEO_URL = "https://geocoding-api.open-meteo.com/v1/search";
+        const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
+        const STORAGE_KEY = "week12-2-last-place";
+
+        const WEATHER = {
+            0: ["Clear sky", "☀️"],
+            1: ["Mainly clear", "🌤️"],
+            2: ["Partly cloudy", "⛅"],
+            3: ["Overcast", "☁️"],
+            45: ["Fog", "🌫️"],
+            48: ["Rime fog", "🌫️"],
+            51: ["Light drizzle", "🌦️"],
+            53: ["Drizzle", "🌦️"],
+            55: ["Heavy drizzle", "🌧️"],
+            56: ["Freezing drizzle", "🌧️"],
+            57: ["Freezing drizzle", "🌧️"],
+            61: ["Light rain", "🌧️"],
+            63: ["Rain", "🌧️"],
+            65: ["Heavy rain", "🌧️"],
+            66: ["Freezing rain", "🌧️"],
+            67: ["Freezing rain", "🌧️"],
+            71: ["Light snow", "🌨️"],
+            73: ["Snow", "🌨️"],
+            75: ["Heavy snow", "❄️"],
+            77: ["Snow grains", "❄️"],
+            80: ["Light showers", "🌦️"],
+            81: ["Rain showers", "🌧️"],
+            82: ["Heavy showers", "🌧️"],
+            85: ["Snow showers", "🌨️"],
+            86: ["Snow showers", "❄️"],
+            95: ["Thunderstorm", "⛈️"],
+            96: ["Thunderstorm with hail", "⛈️"],
+            99: ["Thunderstorm with hail", "⛈️"]
+        };
+
+        function describe(code) {
+            return WEATHER[code] || ["Unknown conditions", "🌡️"];
+        }
+
+        function readSavedPlace() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function App() {
+            const [mode, setMode] = useState("city");
+            const [query, setQuery] = useState("");
+            const [lat, setLat] = useState("");
+            const [lon, setLon] = useState("");
+            const [place, setPlace] = useState(readSavedPlace);
+            const [suggestions, setSuggestions] = useState([]);
+            const [searching, setSearching] = useState(false);
+            const [searchError, setSearchError] = useState("");
+            const [weather, setWeather] = useState(null);
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState("");
+            const searchController = useRef(null);
+
+            /* Effect 1 (pattern [place]): sync the document title with the selected place. */
+            useEffect(() => {
+                document.title = place
+                    ? `Weather · ${place.name} | Week 12-2`
+                    : "Weather Dashboard | Week 12-2";
+            }, [place]);
+
+            /* Effect 2 (pattern [place]): persist the last place. Lazy initializer reads it once. */
+            useEffect(() => {
+                try {
+                    if (place) localStorage.setItem(STORAGE_KEY, JSON.stringify(place));
+                    else localStorage.removeItem(STORAGE_KEY);
+                } catch (storageError) {
+                    /* Private browsing can block storage — the app still works without it. */
+                }
+            }, [place]);
+
+            /* Effect 3 (pattern [place] + cleanup): fetch weather and abort the previous request. */
+            useEffect(() => {
+                if (!place) {
+                    setWeather(null);
+                    return;
+                }
+
+                const controller = new AbortController();
+                let active = true;
+                setLoading(true);
+                setError("");
+                setWeather(null);
+
+                async function loadWeather() {
+                    try {
+                        const params = new URLSearchParams({
+                            latitude: String(place.latitude),
+                            longitude: String(place.longitude),
+                            current: "temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code",
+                            wind_speed_unit: "kmh",
+                            timezone: "auto"
+                        });
+
+                        const response = await fetch(`${FORECAST_URL}?${params}`, {
+                            signal: controller.signal
+                        });
+
+                        if (!response.ok) {
+                            if (response.status === 429) {
+                                throw new Error("Rate limit reached. Please try again shortly.");
+                            }
+                            throw new Error(`Weather request failed (${response.status}).`);
+                        }
+
+                        const data = await response.json();
+                        if (!data.current) {
+                            throw new Error("No current weather for these coordinates.");
+                        }
+                        if (active) setWeather(data.current);
+                    } catch (requestError) {
+                        if (requestError.name === "AbortError") return;
+                        if (active) {
+                            setError(
+                                requestError.message ||
+                                "Network error. Check your connection and try again."
+                            );
+                        }
+                    } finally {
+                        if (active) setLoading(false);
+                    }
+                }
+
+                loadWeather();
+
+                return () => {
+                    active = false;
+                    controller.abort();
+                };
+            }, [place]);
+
+            /* Cleanup on unmount for the in-flight geocoding request. */
+            useEffect(() => {
+                return () => {
+                    if (searchController.current) searchController.current.abort();
+                };
+            }, []);
+
+            async function searchCity(event) {
+                event.preventDefault();
+                const name = query.trim();
+                if (!name) {
+                    setSearchError("Enter a city name first.");
+                    return;
+                }
+
+                if (searchController.current) searchController.current.abort();
+                const controller = new AbortController();
+                searchController.current = controller;
+
+                setSearching(true);
+                setSearchError("");
+                setSuggestions([]);
+
+                try {
+                    const params = new URLSearchParams({
+                        name,
+                        count: "5",
+                        language: "en",
+                        format: "json"
+                    });
+                    const response = await fetch(`${GEO_URL}?${params}`, {
+                        signal: controller.signal
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 429) {
+                            throw new Error("Rate limit reached. Please try again shortly.");
+                        }
+                        throw new Error(`City search failed (${response.status}).`);
+                    }
+
+                    const data = await response.json();
+                    const results = data.results || [];
+                    if (results.length === 0) {
+                        setSearchError(`No city found for "${name}".`);
+                        return;
+                    }
+
+                    setSuggestions(results);
+                    setPlace(results[0]);
+                } catch (requestError) {
+                    if (requestError.name !== "AbortError") {
+                        setSearchError(requestError.message || "City search failed.");
+                    }
+                } finally {
+                    if (!controller.signal.aborted) setSearching(false);
+                }
+            }
+
+            function loadCoordinates(event) {
+                event.preventDefault();
+                if (lat.trim() === "" || lon.trim() === "") {
+                    setSearchError("Enter both latitude and longitude.");
+                    return;
+                }
+
+                const latitude = Number(lat);
+                const longitude = Number(lon);
+                if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+                    setSearchError("Coordinates must be numbers.");
+                    return;
+                }
+                if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+                    setSearchError("Latitude must be -90…90 and longitude -180…180.");
+                    return;
+                }
+
+                setSearchError("");
+                setSuggestions([]);
+                setPlace({
+                    name: `${latitude.toFixed(3)}, ${longitude.toFixed(3)}`,
+                    country: "Coordinates",
+                    latitude,
+                    longitude
+                });
+            }
+
+            function useMyLocation() {
+                if (!navigator.geolocation) {
+                    setSearchError("Geolocation is not supported by this browser.");
+                    return;
+                }
+
+                setSearchError("Locating…");
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        const { latitude, longitude } = position.coords;
+                        setSearchError("");
+                        setSuggestions([]);
+                        setPlace({
+                            name: "My location",
+                            country: "Detected position",
+                            latitude,
+                            longitude
+                        });
+                    },
+                    locationError => {
+                        setSearchError(
+                            locationError.code === 1
+                                ? "Location permission denied."
+                                : "Could not detect your location."
+                        );
+                    },
+                    { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+                );
+            }
+
+            const [condition, icon] = describe(weather ? weather.weather_code : -1);
+
+            return (
+                <div className="page">
+                    <div className="topbar">
+                        <a href="./index.html">← Week 12-2 demos</a>
+                        <span className="badge">Week 12-2 · React Effects</span>
+                    </div>
+
+                    <div className="card">
+                        <h1>Weather Dashboard</h1>
+                        <p className="subtitle">
+                            Search a city or enter coordinates. The forecast is loaded with{" "}
+                            <code>useEffect</code>; switching places aborts the previous request and
+                            shows loading and error states.
+                        </p>
+
+                        <div className="grid">
+                            <section className="panel">
+                                <div className="tabs">
+                                    <button
+                                        className={"tab" + (mode === "city" ? " active" : "")}
+                                        onClick={() => { setMode("city"); setSearchError(""); }}
+                                    >
+                                        City name
+                                    </button>
+                                    <button
+                                        className={"tab" + (mode === "coords" ? " active" : "")}
+                                        onClick={() => { setMode("coords"); setSearchError(""); }}
+                                    >
+                                        Coordinates
+                                    </button>
+                                </div>
+
+                                {mode === "city" ? (
+                                    <form onSubmit={searchCity}>
+                                        <label htmlFor="city">City</label>
+                                        <div className="button-row" style={{ marginTop: 0 }}>
+                                            <input
+                                                id="city"
+                                                value={query}
+                                                onChange={event => setQuery(event.target.value)}
+                                                placeholder="e.g. Seoul"
+                                            />
+                                            <button className="primary" type="submit" disabled={searching}>
+                                                {searching ? "Searching…" : "Search"}
+                                            </button>
+                                        </div>
+                                    </form>
+                                ) : (
+                                    <form onSubmit={loadCoordinates}>
+                                        <div className="field">
+                                            <label htmlFor="lat">Latitude</label>
+                                            <input
+                                                id="lat"
+                                                type="number"
+                                                step="any"
+                                                value={lat}
+                                                onChange={event => setLat(event.target.value)}
+                                                placeholder="37.5665"
+                                            />
+                                        </div>
+                                        <div className="field">
+                                            <label htmlFor="lon">Longitude</label>
+                                            <input
+                                                id="lon"
+                                                type="number"
+                                                step="any"
+                                                value={lon}
+                                                onChange={event => setLon(event.target.value)}
+                                                placeholder="126.978"
+                                            />
+                                        </div>
+                                        <button className="primary" type="submit">Load weather</button>
+                                    </form>
+                                )}
+
+                                <div className="button-row">
+                                    <button className="ghost" onClick={useMyLocation}>
+                                        Use my location
+                                    </button>
+                                    {place && (
+                                        <button className="ghost" onClick={() => setPlace(null)}>
+                                            Clear
+                                        </button>
+                                    )}
+                                </div>
+
+                                {searchError && <p className="alert">{searchError}</p>}
+
+                                {suggestions.length > 1 && (
+                                    <div>
+                                        <p className="hint">Other matches:</p>
+                                        <div className="chips">
+                                            {suggestions.slice(1).map(result => (
+                                                <button
+                                                    key={result.id}
+                                                    className="chip"
+                                                    onClick={() => setPlace(result)}
+                                                >
+                                                    {result.name}, {result.country}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <p className="note">
+                                    Data: <a href="https://open-meteo.com/">Open-Meteo</a> — free, no API key.
+                                </p>
+                            </section>
+
+                            <section className="widget" aria-live="polite">
+                                {loading ? (
+                                    <div className="state">
+                                        <div className="spinner"></div>
+                                        <strong>Loading weather…</strong>
+                                    </div>
+                                ) : error ? (
+                                    <div className="state">
+                                        <div style={{ fontSize: "2.4rem" }}>⚠️</div>
+                                        <strong className="bad">Could not load weather</strong>
+                                        <p className="hint">{error}</p>
+                                    </div>
+                                ) : weather && place ? (
+                                    <div>
+                                        <p className="place">
+                                            {place.name}
+                                            <small>{place.country || place.admin1 || "Current position"}</small>
+                                        </p>
+                                        <div className="temp-row">
+                                            <span className="emoji" aria-hidden="true">{icon}</span>
+                                            <div>
+                                                <div className="temp">
+                                                    {weather.temperature_2m}
+                                                    <span style={{ fontSize: "1.4rem" }}>°C</span>
+                                                </div>
+                                                <div className="condition">{condition}</div>
+                                            </div>
+                                        </div>
+                                        <div className="stats">
+                                            <span>Wind <strong>{weather.wind_speed_10m} km/h</strong></span>
+                                            <span>Humidity <strong>{weather.relative_humidity_2m}%</strong></span>
+                                            <span>Updated <strong>{weather.time}</strong></span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="state">
+                                        <div style={{ fontSize: "3rem" }}>🌍</div>
+                                        <strong>Search for a city to see the weather</strong>
+                                        <p className="hint">Try “Seoul” or use your current location.</p>
+                                    </div>
+                                )}
+                            </section>
+                        </div>
+
+                        <details>
+                            <summary>Which useEffect patterns are used here?</summary>
+                            <ul className="note">
+                                <li><code>useEffect(fn, [place])</code> — refetches when the selected place changes.</li>
+                                <li><code>return () =&gt; controller.abort()</code> — cancels the old request so a slow response cannot overwrite a newer one.</li>
+                                <li><code>useState(readSavedPlace)</code> — lazy initializer reads <code>localStorage</code> once at mount; a second effect writes on change.</li>
+                                <li><code>document.title</code> is synced in an effect — a side effect outside React.</li>
+                            </ul>
+                        </details>
+
+                        <div className="button-row">
+                            <a className="link-card" href="./index.html" style={{ flex: 1 }}>
+                                <span className="num">RELATED</span>
+                                <h3>useEffect demos</h3>
+                                <p>Mount, dependencies, timer cleanup and persistence.</p>
+                            </a>
+                        </div>
+
+                        <p className="footer-note">Web Programming · K0126_002 · Week 12 · Friday</p>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+</body>
+
+</html>
