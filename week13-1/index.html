@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Week 13 — Student Profile Editor | Abubakr</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        const INITIAL_FORM = {
+            name: "",
+            studentId: "",
+            major: "",
+            year: "",
+            bio: ""
+        };
+
+        const MAJORS = [
+            "Computer Engineering",
+            "Software Engineering",
+            "Information Systems",
+            "Data Science",
+            "Business Administration",
+            "Design & Multimedia"
+        ];
+
+        const PATTERNS = [
+            ["value + onChange", "React state is the single source of truth."],
+            ["one handleChange", "e.target.name becomes the computed key [name]."],
+            ["useRef for file", "File inputs stay uncontrolled."],
+            ["errors object", "An empty object means every field is valid."]
+        ];
+
+        function FieldError({ id, message }) {
+            if (!message) return null;
+            return <p className="field-error" id={id} role="alert">{message}</p>;
+        }
+
+        function initials(name) {
+            return name
+                .trim()
+                .split(/\s+/)
+                .slice(0, 2)
+                .map(part => part[0].toUpperCase())
+                .join("") || "SP";
+        }
+
+        function App() {
+            const [form, setForm] = useState(INITIAL_FORM);
+            const [errors, setErrors] = useState({});
+            const [photo, setPhoto] = useState({ name: "", url: "" });
+            const [skills, setSkills] = useState([]);
+            const [skillInput, setSkillInput] = useState("");
+            const [profile, setProfile] = useState(null);
+            const fileRef = useRef(null);
+            const createdUrls = useRef([]);
+
+            useEffect(() => {
+                return () => {
+                    createdUrls.current.forEach(url => URL.revokeObjectURL(url));
+                };
+            }, []);
+
+            function handleChange(event) {
+                const { name, value } = event.target;
+                setForm(previous => ({ ...previous, [name]: value }));
+
+                setErrors(previous => {
+                    if (!previous[name]) return previous;
+                    const next = { ...previous };
+                    delete next[name];
+                    return next;
+                });
+            }
+
+            function handlePhoto(event) {
+                const file = event.target.files && event.target.files[0];
+
+                if (!file) {
+                    setPhoto({ name: "", url: "" });
+                    return;
+                }
+
+                if (!file.type.startsWith("image/")) {
+                    event.target.value = "";
+                    setPhoto({ name: "", url: "" });
+                    setErrors(previous => ({ ...previous, photo: "Please choose an image file." }));
+                    return;
+                }
+
+                const url = URL.createObjectURL(file);
+                createdUrls.current.push(url);
+                setPhoto({ name: file.name, url });
+
+                setErrors(previous => {
+                    const next = { ...previous };
+                    delete next.photo;
+                    return next;
+                });
+            }
+
+            function addSkill(event) {
+                if (event.key !== "Enter") return;
+                event.preventDefault();
+
+                const value = skillInput.trim();
+                if (!value || skills.some(skill => skill.toLowerCase() === value.toLowerCase())) {
+                    setSkillInput("");
+                    return;
+                }
+
+                setSkills(previous => [...previous, value]);
+                setSkillInput("");
+            }
+
+            function removeSkill(skill) {
+                setSkills(previous => previous.filter(item => item !== skill));
+            }
+
+            function validate(data) {
+                const next = {};
+
+                if (!data.name.trim()) {
+                    next.name = "Name is required.";
+                }
+
+                if (!/^\d{10}$/.test(data.studentId.trim())) {
+                    next.studentId = "Student ID must be exactly 10 digits.";
+                }
+
+                if (!data.major) {
+                    next.major = "Choose a major from the list.";
+                }
+
+                if (!data.year) {
+                    next.year = "Select your year of study.";
+                }
+
+                if (!data.bio.trim()) {
+                    next.bio = "Bio is required.";
+                } else if (data.bio.length >= 200) {
+                    next.bio = "Bio must be under 200 characters.";
+                }
+
+                return next;
+            }
+
+            function handleSubmit(event) {
+                event.preventDefault();
+
+                const nextErrors = validate(form);
+                if (!photo.url) {
+                    nextErrors.photo = "Upload a profile photo.";
+                }
+                setErrors(nextErrors);
+
+                const firstInvalid = Object.keys(nextErrors)[0];
+                if (firstInvalid) {
+                    const focusIds = {
+                        name: "name",
+                        studentId: "studentId",
+                        major: "major",
+                        year: "year-1",
+                        bio: "bio",
+                        photo: "photo"
+                    };
+                    document.getElementById(focusIds[firstInvalid])?.focus();
+                    return;
+                }
+
+                setProfile({
+                    ...form,
+                    name: form.name.trim(),
+                    studentId: form.studentId.trim(),
+                    bio: form.bio.trim(),
+                    skills: [...skills],
+                    photoUrl: photo.url,
+                    photoName: photo.name
+                });
+            }
+
+            function startNewProfile() {
+                setForm(INITIAL_FORM);
+                setErrors({});
+                setPhoto({ name: "", url: "" });
+                setSkills([]);
+                setSkillInput("");
+                setProfile(null);
+                if (fileRef.current) fileRef.current.value = "";
+            }
+
+            const bioCount = form.bio.length;
+            const bioClass = "counter" + (bioCount >= 200 ? " over" : "");
+
+            return (
+                <div className="page">
+                    <div className="topbar">
+                        <a href="../index.html">← Coursework home</a>
+                        <span className="badge">Week 13 · Monday</span>
+                    </div>
+
+                    <main className="card">
+                        <div className="card-web" aria-hidden="true"></div>
+
+                        <header className="hero">
+                            <div>
+                                <p className="kicker">React forms &amp; controlled components</p>
+                                <h1>Student Profile <span>Editor</span></h1>
+                                <p className="subtitle">
+                                    Build a profile the React way: one state object, one shared handler,
+                                    live validation, and a preview that appears only when every field is valid.
+                                </p>
+                            </div>
+                            <div className="thwip" aria-hidden="true">Thwip!</div>
+                        </header>
+
+                        <div className="editor-layout">
+                            <section className="panel form-panel" aria-labelledby="form-title">
+                                <div className="panel-heading">
+                                    <span className="panel-num">01</span>
+                                    <h2 id="form-title">Edit your details</h2>
+                                    <span className="required-note">All fields required</span>
+                                </div>
+
+                                <form onSubmit={handleSubmit} noValidate>
+                                    <div className="field-grid">
+                                        <div className="field">
+                                            <label htmlFor="name">Full name</label>
+                                            <input
+                                                id="name"
+                                                name="name"
+                                                type="text"
+                                                value={form.name}
+                                                onChange={handleChange}
+                                                placeholder="e.g. Kim Minho"
+                                                autoComplete="name"
+                                                aria-invalid={Boolean(errors.name)}
+                                                aria-describedby={errors.name ? "name-error" : undefined}
+                                            />
+                                            <FieldError id="name-error" message={errors.name} />
+                                        </div>
+
+                                        <div className="field">
+                                            <label htmlFor="studentId">Student ID · 10 digits</label>
+                                            <input
+                                                id="studentId"
+                                                name="studentId"
+                                                type="text"
+                                                inputMode="numeric"
+                                                maxLength="10"
+                                                value={form.studentId}
+                                                onChange={handleChange}
+                                                placeholder="2024123456"
+                                                aria-invalid={Boolean(errors.studentId)}
+                                                aria-describedby={errors.studentId ? "studentId-error" : undefined}
+                                            />
+                                            <FieldError id="studentId-error" message={errors.studentId} />
+                                        </div>
+
+                                        <div className="field">
+                                            <label htmlFor="major">Major</label>
+                                            <select
+                                                id="major"
+                                                name="major"
+                                                value={form.major}
+                                                onChange={handleChange}
+                                                aria-invalid={Boolean(errors.major)}
+                                                aria-describedby={errors.major ? "major-error" : undefined}
+                                            >
+                                                <option value="">Select a major…</option>
+                                                {MAJORS.map(major => (
+                                                    <option key={major} value={major}>{major}</option>
+                                                ))}
+                                            </select>
+                                            <FieldError id="major-error" message={errors.major} />
+                                        </div>
+
+                                        <fieldset className="field radio-field">
+                                            <legend>Year of study</legend>
+                                            <div className="radio-row">
+                                                {["1", "2", "3", "4"].map(year => (
+                                                    <label className="radio-pill" key={year} htmlFor={`year-${year}`}>
+                                                        <input
+                                                            id={`year-${year}`}
+                                                            name="year"
+                                                            type="radio"
+                                                            value={year}
+                                                            checked={form.year === year}
+                                                            onChange={handleChange}
+                                                            aria-invalid={Boolean(errors.year)}
+                                                        />
+                                                        <span>Year {year}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                            <FieldError id="year-error" message={errors.year} />
+                                        </fieldset>
+
+                                        <div className="field full">
+                                            <div className="label-row">
+                                                <label htmlFor="bio">Short bio</label>
+                                                <span id="bio-count" className={bioClass}>
+                                                    {bioCount} / 200
+                                                </span>
+                                            </div>
+                                            <textarea
+                                                id="bio"
+                                                name="bio"
+                                                rows="4"
+                                                maxLength="200"
+                                                value={form.bio}
+                                                onChange={handleChange}
+                                                placeholder="Tell us about your interests, goals, or favourite project…"
+                                                aria-invalid={Boolean(errors.bio)}
+                                                aria-describedby={"bio-count" + (errors.bio ? " bio-error" : "")}
+                                            />
+                                            <div className="counter-track" aria-hidden="true">
+                                                <span style={{ width: Math.min(100, (bioCount / 200) * 100) + "%" }} />
+                                            </div>
+                                            <FieldError id="bio-error" message={errors.bio} />
+                                        </div>
+
+                                        <div className="field full">
+                                            <label htmlFor="photo">Profile photo</label>
+                                            <div className="file-drop">
+                                                <input
+                                                    id="photo"
+                                                    ref={fileRef}
+                                                    name="photo"
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handlePhoto}
+                                                    aria-invalid={Boolean(errors.photo)}
+                                                    aria-describedby={errors.photo ? "photo-error" : undefined}
+                                                />
+                                                {photo.url && (
+                                                    <img className="file-thumb" src={photo.url} alt="Selected file preview" />
+                                                )}
+                                            </div>
+                                            {photo.name && <p className="file-name">Selected: {photo.name}</p>}
+                                            <FieldError id="photo-error" message={errors.photo} />
+                                        </div>
+
+                                        <div className="field full">
+                                            <div className="label-row">
+                                                <label htmlFor="skills">Skills <span className="optional">· optional stretch</span></label>
+                                                <span className="hint-inline">Press Enter to add</span>
+                                            </div>
+                                            <input
+                                                id="skills"
+                                                type="text"
+                                                value={skillInput}
+                                                onChange={event => setSkillInput(event.target.value)}
+                                                onKeyDown={addSkill}
+                                                placeholder="Type a skill and press Enter"
+                                            />
+                                            {skills.length > 0 && (
+                                                <div className="skill-tags" aria-label="Added skills">
+                                                    {skills.map(skill => (
+                                                        <span className="skill-tag" key={skill}>
+                                                            {skill}
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => removeSkill(skill)}
+                                                                aria-label={`Remove ${skill}`}
+                                                            >
+                                                                ×
+                                                            </button>
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <button className="submit-btn" type="submit">
+                                        Thwip! Create profile preview
+                                    </button>
+                                </form>
+                            </section>
+
+                            <aside className="preview-panel" aria-live="polite">
+                                <div className="panel-heading">
+                                    <span className="panel-num">02</span>
+                                    <h2>Profile Preview</h2>
+                                </div>
+
+                                {profile ? (
+                                    <div className="preview-result">
+                                        <article className="profile-card">
+                                            <div className="profile-web" aria-hidden="true"></div>
+                                            <div className="avatar">
+                                                <img src={profile.photoUrl} alt={`${profile.name}'s profile photo`} />
+                                            </div>
+                                            <div className="profile-info">
+                                                <p className="profile-label">Student profile</p>
+                                                <h3>{profile.name}</h3>
+                                                <p className="id-line">
+                                                    ID <strong>{profile.studentId}</strong> · Year <strong>{profile.year}</strong>
+                                                </p>
+                                                <p className="major-line">{profile.major}</p>
+                                                <p className="bio-line">{profile.bio}</p>
+                                                <p className="bio-count-line">bio: <strong>{profile.bio.length} / 200</strong></p>
+                                                {profile.skills.length > 0 && (
+                                                    <div className="preview-skills">
+                                                        {profile.skills.map(skill => (
+                                                            <span className="preview-skill" key={skill}>{skill}</span>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </article>
+
+                                        <div className="preview-actions">
+                                            <button type="button" onClick={() => setProfile(null)}>Edit details</button>
+                                            <button type="button" className="danger-ghost" onClick={startNewProfile}>
+                                                Start a new profile
+                                            </button>
+                                        </div>
+                                        <p className="preview-note">
+                                            Photo source: <span>{profile.photoName}</span>
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="empty-preview">
+                                        <div className="spider-mark" aria-hidden="true">🕷️</div>
+                                        <h3>Waiting for a valid profile</h3>
+                                        <p>Fill in every field, upload a photo, then submit. Your card will appear here.</p>
+                                        <div className="empty-tags" aria-hidden="true">
+                                            <span>react</span><span>forms</span><span>css</span>
+                                        </div>
+                                    </div>
+                                )}
+                            </aside>
+                        </div>
+
+                        <section className="pattern-strip" aria-label="React form patterns used">
+                            {PATTERNS.map(([title, detail], index) => (
+                                <div className="pattern-item" key={title}>
+                                    <span>{String(index + 1).padStart(2, "0")}</span>
+                                    <strong>{title}</strong>
+                                    <p>{detail}</p>
+                                </div>
+                            ))}
+                        </section>
+                    </main>
+
+                    <footer className="footer-note">
+                        Web Programming · K0126_002 · Week 13 · Monday
+                    </footer>
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+</body>
+
+</html>
